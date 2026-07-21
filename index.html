@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบตรวจสลากกินแบ่งรัฐบาล</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
+        }
+        body {
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .container {
+            max-width: 700px;
+            margin: -20px auto 2rem auto;
+            padding: 0 1rem;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #444;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus, select:focus {
+            border-color: #2e7d32;
+        }
+        .btn {
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background-color: #1b5e20;
+        }
+        .result-section {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+        .result-success {
+            background-color: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            color: #2e7d32;
+        }
+        .result-fail {
+            background-color: #ffebee;
+            border: 1px solid #ffcdd2;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>ตรวจสลากกินแบ่งรัฐบาล</h1>
+        <p>ระบบตรวจหวยส่วนตัวบน Acode</p>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h3 style="margin-bottom: 1rem; color: #1b5e20;">กรอกหมายเลขที่ต้องการตรวจ</h3>
+            <div class="form-group">
+                <label for="lotteryNumber">หมายเลขสลาก (6 หลัก):</label>
+                <input type="text" id="lotteryNumber" maxlength="6" placeholder="เช่น 639214">
+            </div>
+            <div class="form-group">
+                <label for="drawDate">งวดประจำวันที่:</label>
+                <select id="drawDate">
+                    <option value="2026-07-16">16 กรกฎาคม 2569</option>
+                    <option value="2026-07-01">1 กรกฎาคม 2569</option>
+                </select>
+            </div>
+            <button class="btn" onclick="checkLottery()">ตรวจสอบผลรางวัล</button>
+
+            <div id="resultBox" class="result-section">
+                <p id="resultText"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ฐานข้อมูลผลรางวัล (คุณสามารถแก้ไขตัวเลขในนี้เพื่อเพิ่มงวดหรือเปลี่ยนผลรางวัลได้ง่ายๆ ใน Acode)
+        const lotteryDatabase = {
+            "2026-07-16": {
+                prize1: "639214",
+                front3: ["123", "789"],
+                last3: ["456", "987"],
+                last2: "14"
+            },
+            "2026-07-01": {
+                prize1: "999888",
+                front3: ["111", "222"],
+                last3: ["333", "444"],
+                last2: "88"
+            }
+        };
+
+        function checkLottery() {
+            const numberInput = document.getElementById('lotteryNumber').value.trim();
+            const dateInput = document.getElementById('drawDate').value;
+            const resultBox = document.getElementById('resultBox');
+            const resultText = document.getElementById('resultText');
+
+            if (numberInput.length !== 6 || isNaN(numberInput)) {
+                resultBox.style.display = 'block';
+                resultBox.className = 'result-section result-fail';
+                resultText.innerHTML = '<strong>กรุณากรอกหมายเลขสลากให้ครบ 6 หลัก</strong>';
+                return;
+            }
+
+            const currentDraw = lotteryDatabase[dateInput];
+
+            if (!currentDraw) {
+                resultBox.style.display = 'block';
+                resultBox.className = 'result-section result-fail';
+                resultText.innerHTML = 'ไม่พบข้อมูลผลรางวัลงวดดังกล่าว';
+                return;
+            }
+
+            let matchedPrizes = [];
+
+            if (numberInput === currentDraw.prize1) {
+                matchedPrizes.push("รางวัลที่ 1");
+            }
+            if (numberInput.slice(-2) === currentDraw.last2) {
+                matchedPrizes.push("รางวัลเลขท้าย 2 ตัว");
+            }
+            if (currentDraw.last3.includes(numberInput.slice(-3))) {
+                matchedPrizes.push("รางวัลเลขท้าย 3 ตัว");
+            }
+            if (currentDraw.front3.includes(numberInput.slice(0, 3))) {
+                matchedPrizes.push("รางวัลเลขหน้า 3 ตัว");
+            }
+
+            resultBox.style.display = 'block';
+            if (matchedPrizes.length > 0) {
+                resultBox.className = 'result-section result-success';
+                resultText.innerHTML = `ยินดีด้วยครับ! คุณถูก: <strong>${matchedPrizes.join(', ')}</strong>`;
+            } else {
+                resultBox.className = 'result-section result-fail';
+                resultText.innerHTML = 'เสียใจด้วยครับ คุณไม่ถูกรางวัลในงวดนี้';
+            }
+        }
+    </script>
+
+</body>
+</html>
