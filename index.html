@@ -3,325 +3,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบตรวจสลากกินแบ่งรัฐบาล</title>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>PocketCloud Hub - ศูนย์รวมระบบและเครื่องมือ</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Prompt', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         body {
-            background-color: #f4f7f6;
-            color: #333;
-            line-height: 1.6;
+            background-color: #0f172a;
+            color: #f8fafc;
+            line-height: 1.5;
+            padding: 20px;
         }
         header {
-            background: linear-gradient(135deg, #1b5e20, #2e7d32);
-            color: white;
-            padding: 2rem 1rem;
             text-align: center;
+            margin-bottom: 30px;
         }
         header h1 {
             font-size: 1.8rem;
-            margin-bottom: 0.2rem;
+            color: #38bdf8;
+            margin-bottom: 5px;
         }
-        .container {
-            max-width: 700px;
-            margin: -20px auto 2rem auto;
-            padding: 0 1rem;
+        header p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+        
+        .category-container {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
         .card {
-            background: white;
+            background-color: #1e293b;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #334155;
         }
-        .card h3 {
-            margin-bottom: 1rem;
-            color: #1b5e20;
-            border-bottom: 2px solid #e8f5e9;
-            padding-bottom: 0.5rem;
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: #cbd5e1;
+            border-left: 4px solid #38bdf8;
+            padding-left: 10px;
         }
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #444;
-        }
-        input[type="text"], select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        input[type="text"]:focus, select:focus {
-            border-color: #2e7d32;
+        
+        .link-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .btn {
-            background-color: #2e7d32;
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 0.75rem;
-            font-size: 1.1rem;
-            font-weight: 500;
+            background-color: #334155;
+            color: #f1f5f9;
+            padding: 10px 15px;
             border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+            border: none;
             cursor: pointer;
-            transition: background 0.3s;
+            display: inline-block;
         }
         .btn:hover {
-            background-color: #1b5e20;
+            background-color: #0ea5e9;
+            color: #fff;
         }
-        .result-section {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            border-radius: 8px;
+
+        /* ส่วนอัปโหลดรูปภาพ */
+        .upload-btn-container {
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        #imageInput {
             display: none;
         }
-        .result-success {
-            background-color: #e8f5e9;
-            border: 1px solid #c8e6c9;
-            color: #2e7d32;
+        .upload-label {
+            background-color: #0ea5e9;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-block;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: background 0.2s;
         }
-        .result-fail {
-            background-color: #ffebee;
-            border: 1px solid #ffcdd2;
-            color: #c62828;
+        .upload-label:hover {
+            background-color: #0284c7;
         }
-        .prize-list {
-            margin-top: 0.5rem;
-            padding-left: 1.2rem;
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .gallery-item {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background-color: #0f172a;
+        }
+
+        /* สไตล์กล่อง GPS */
+        .gps-box {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+        .gps-box p {
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #64748b;
+            font-size: 0.85rem;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>ตรวจสลากกินแบ่งรัฐบาล</h1>
+        <h1>☁️ PocketCloud Hub</h1>
+        <p>ศูนย์รวมลิงก์และเครื่องมือจัดการส่วนตัว</p>
     </header>
 
-    <div class="container">
-        
-        <!-- ส่วนที่เลือกงวดส่วนกลาง -->
+    <div class="category-container">
+
+        <!-- หมวดที่ 1: ค้นหาข้อมูล -->
         <div class="card">
-            <div class="form-group" style="margin-bottom: 0;">
-                <label for="drawDate">เลือกงวดประจำวันที่:</label>
-                <select id="drawDate">
-                    <option value="2026-07-16">16 กรกฎาคม 2569</option>
-                    <option value="2026-07-01">1 กรกฎาคม 2569</option>
-                </select>
+            <h2>🔍 1. ค้นหาข้อมูล (Search & Knowledge)</h2>
+            <div class="link-group">
+                <a href="https://www.google.com" target="_blank" class="btn">Google Search</a>
+                <a href="https://th.wikipedia.org" target="_blank" class="btn">Wikipedia</a>
             </div>
         </div>
 
-        <!-- 1. ตรวจรางวัล 6 หลัก -->
+        <!-- หมวดที่ 2: สื่อสารและโซเชียล -->
         <div class="card">
-            <h3>ตรวจรางวัล 6 หลัก (รางวัลที่ 1-5 และข้างเคียง)</h3>
-            <div class="form-group">
-                <label for="lottery6">หมายเลขสลาก (6 หลัก):</label>
-                <input type="text" id="lottery6" maxlength="6" placeholder="เช่น 639214">
-            </div>
-            <button class="btn" onclick="check6Digits()">ตรวจสอบรางวัล 6 หลัก</button>
-            <div id="resultBox6" class="result-section">
-                <p id="resultText6"></p>
-                <ul id="resultList6" class="prize-list"></ul>
+            <h2>💬 2. สื่อสารและโซเชียล (Social & Comm)</h2>
+            <div class="link-group">
+                <a href="https://mail.google.com" target="_blank" class="btn">Gmail</a>
+                <a href="https://www.facebook.com" target="_blank" class="btn">Facebook</a>
             </div>
         </div>
 
-        <!-- 2. ตรวจเลขหน้า 3 ตัว -->
+        <!-- หมวดที่ 3: ความบันเทิง -->
         <div class="card">
-            <h3>ตรวจรางวัลเลขหน้า 3 ตัว</h3>
-            <div class="form-group">
-                <label for="front3">หมายเลข 3 ตัวหน้า:</label>
-                <input type="text" id="front3" maxlength="3" placeholder="เช่น 683">
-            </div>
-            <button class="btn" onclick="checkFront3()">ตรวจสอบเลขหน้า 3 ตัว</button>
-            <div id="resultBoxFront3" class="result-section">
-                <p id="resultTextFront3"></p>
+            <h2>🎬 3. ความบันเทิง (Entertainment)</h2>
+            <div class="link-group">
+                <a href="https://www.youtube.com" target="_blank" class="btn">YouTube</a>
+                <a href="https://www.netflix.com" target="_blank" class="btn">Netflix</a>
             </div>
         </div>
 
-        <!-- 3. ตรวจเลขท้าย 3 ตัว -->
+        <!-- หมวดที่ 4: ช้อปปิ้งและธุรกรรม -->
         <div class="card">
-            <h3>ตรวจรางวัลเลขท้าย 3 ตัว</h3>
-            <div class="form-group">
-                <label for="last3">หมายเลข 3 ตัวท้าย:</label>
-                <input type="text" id="last3" maxlength="3" placeholder="เช่น 746">
-            </div>
-            <button class="btn" onclick="checkLast3()">ตรวจสอบเลขท้าย 3 ตัว</button>
-            <div id="resultBoxLast3" class="result-section">
-                <p id="resultTextLast3"></p>
+            <h2>🛒 4. ช้อปปิ้งและธุรกรรม (Shopping & Finance)</h2>
+            <div class="link-group">
+                <a href="https://www.shopee.co.th" target="_blank" class="btn">Shopee</a>
+                <a href="https://www.lazada.co.th" target="_blank" class="btn">Lazada</a>
             </div>
         </div>
 
-        <!-- 4. ตรวจเลขท้าย 2 ตัว -->
+        <!-- หมวดที่ 5: AI, คลังภาพ & GPS นำทาง -->
         <div class="card">
-            <h3>ตรวจรางวัลเลขท้าย 2 ตัว</h3>
-            <div class="form-group">
-                <label for="last2">หมายเลข 2 ตัวท้าย:</label>
-                <input type="text" id="last2" maxlength="2" placeholder="เช่น 71">
+            <h2>🎨 5. เครื่องมือส่วนตัว, AI & GPS</h2>
+            <div class="link-group" style="margin-bottom: 10px;">
+                <a href="https://www.bing.com/create" target="_blank" class="btn">✨ เจนภาพด้วย AI (Bing)</a>
+                <a href="https://app.runwayml.com" target="_blank" class="btn">🎥 เจนวิดีโอด้วย AI</a>
             </div>
-            <button class="btn" onclick="checkLast2()">ตรวจสอบเลขท้าย 2 ตัว</button>
-            <div id="resultBoxLast2" class="result-section">
-                <p id="resultTextLast2"></p>
+
+            <!-- ส่วนอัปโหลดรูปภาพ -->
+            <div class="upload-btn-container">
+                <label for="imageInput" class="upload-label">📁 อัปโหลดรูปภาพเก็บในคลัง</label>
+                <input type="file" id="imageInput" accept="image/*" multiple>
+            </div>
+            <div id="galleryContainer" class="gallery-grid"></div>
+
+            <!-- ส่วนระบบ GPS นำทางผสมผสาน -->
+            <div class="gps-box">
+                <p id="gpsStatus">📍 พิกัด GPS: ยังไม่ได้ดึงข้อมูล</p>
+                <button onclick="getLocation()" class="btn" style="background-color: #0ea5e9; width: 100%; margin-bottom: 8px; font-weight: bold;">🛰️ เช็คพิกัด GPS ปัจจุบัน</button>
+                <a id="mapLink" href="#" target="_blank" class="btn" style="display: none; background-color: #10b981; width: 100%; text-align: center; font-weight: bold;">🗺️ เปิด Google Maps นำทางจากจุดนี้</a>
             </div>
         </div>
 
     </div>
 
+    <footer>
+        <p>Powered by HTML/CSS & GitHub Pages | สร้างโดยคุณและพี่เจมส์</p>
+    </footer>
+
     <script>
-        const lotteryDatabase = {
-            "2026-07-16": {
-                prize1: "639214",
-                sidePrize1: ["639213", "639215"],
-                prize2: ["041103", "468769", "766948", "846088", "997512"],
-                prize3: ["065731", "171022", "218479", "227673", "436300", "552474", "568691", "791742", "807458", "936500"],
-                prize4: ["017061", "181212", "276804", "399866", "524743", "654462", "713623", "752291", "820623", "859979"],
-                prize5: ["013563", "153201", "268889", "339088", "435582", "596396", "680354", "788655", "851550", "915969"],
-                front3: ["683", "709"],
-                last3: ["746", "427"],
-                last2: "71"
-            },
-            "2026-07-01": {
-                prize1: "751495",
-                sidePrize1: ["751494", "751496"],
-                prize2: ["370059", "418597", "476642", "699829", "902369"],
-                prize3: ["046311", "222683", "231094", "234654", "300311", "406138", "445814", "478059", "520943", "660172"],
-                prize4: ["019808", "150458", "263833", "333429", "404995", "488755", "587450", "690707", "814794", "949936"],
-                prize5: ["041327", "261007", "359945", "411656", "491077", "527828", "624516", "714198", "822015", "924098"],
-                front3: ["001", "980"],
-                last3: ["304", "531"],
-                last2: "62"
+        // ฟังก์ชันคลังภาพ
+        const imageInput = document.getElementById('imageInput');
+        const galleryContainer = document.getElementById('galleryContainer');
+
+        imageInput.addEventListener('change', function(event) {
+            const files = event.target.files;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'gallery-item';
+                    galleryContainer.appendChild(img);
+                }
+                reader.readAsDataURL(file);
             }
-        };
+        });
 
-        // 1. ตรวจ 6 หลัก
-        function check6Digits() {
-            const val = document.getElementById('lottery6').value.trim();
-            const date = document.getElementById('drawDate').value;
-            const box = document.getElementById('resultBox6');
-            const text = document.getElementById('resultText6');
-            const list = document.getElementById('resultList6');
-            list.innerHTML = '';
+        // ฟังก์ชันดึงพิกัด GPS
+        const gpsStatus = document.getElementById('gpsStatus');
+        const mapLink = document.getElementById('mapLink');
 
-            if (val.length !== 6 || isNaN(val)) {
-                box.style.display = 'block';
-                box.className = 'result-section result-fail';
-                text.innerHTML = '<strong>กรุณากรอกเลขให้ครบ 6 หลัก</strong>';
-                return;
-            }
-
-            const draw = lotteryDatabase[date];
-            let matched = [];
-
-            if (val === draw.prize1) matched.push("🎉 รางวัลที่ 1 (6,000,000 บาท)");
-            if (draw.sidePrize1.includes(val)) matched.push("✨ รางวัลข้างเคียงรางวัลที่ 1 (100,000 บาท)");
-            if (draw.prize2.includes(val)) matched.push("🥈 รางวัลที่ 2 (200,000 บาท)");
-            if (draw.prize3.includes(val)) matched.push("🥉 รางวัลที่ 3 (80,000 บาท)");
-            if (draw.prize4.includes(val)) matched.push("🏅 รางวัลที่ 4 (40,000 บาท)");
-            if (draw.prize5.includes(val)) matched.push("🎖️ รางวัลที่ 5 (20,000 บาท)");
-
-            box.style.display = 'block';
-            if (matched.length > 0) {
-                box.className = 'result-section result-success';
-                text.innerHTML = `<strong>ยินดีด้วยครับ! คุณถูกรางวัล:</strong>`;
-                matched.forEach(p => {
-                    let li = document.createElement('li');
-                    li.textContent = p;
-                    list.appendChild(li);
-                });
+        function getLocation() {
+            if (navigator.geolocation) {
+                gpsStatus.innerText = "📍 กำลังค้นหาพิกัด GPS...";
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
             } else {
-                box.className = 'result-section result-fail';
-                text.innerHTML = 'เสียใจด้วยครับ หมายเลขนี้ไม่ถูกรางวัล 6 หลัก';
+                gpsStatus.innerText = "❌ เบราว์เซอร์นี้ไม่รองรับ GPS";
             }
         }
 
-        // 2. ตรวจเลขหน้า 3 ตัว
-        function checkFront3() {
-            const val = document.getElementById('front3').value.trim();
-            const date = document.getElementById('drawDate').value;
-            const box = document.getElementById('resultBoxFront3');
-            const text = document.getElementById('resultTextFront3');
-
-            if (val.length !== 3 || isNaN(val)) {
-                box.style.display = 'block';
-                box.className = 'result-section result-fail';
-                text.innerHTML = '<strong>กรุณากรอกเลขหน้าให้ครบ 3 หลัก</strong>';
-                return;
-            }
-
-            const draw = lotteryDatabase[date];
-            box.style.display = 'block';
-            if (draw.front3.includes(val)) {
-                box.className = 'result-section result-success';
-                text.innerHTML = `<strong>🎯 ยินดีด้วยครับ! ถูกรางวัลเลขหน้า 3 ตัว (4,000 บาท)</strong>`;
-            } else {
-                box.className = 'result-section result-fail';
-                text.innerHTML = 'เสียใจด้วยครับ หมายเลขนี้ไม่ถูกรางวัลเลขหน้า 3 ตัว';
-            }
+        function showPosition(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            
+            gpsStatus.innerHTML = `✅ พิกัดของคุณ:<br>Lat: ${lat.toFixed(5)}, Lon: ${lon.toFixed(5)}`;
+            
+            // ตั้งค่าลิงก์เปิด Google Maps นำทาง
+            mapLink.href = `https://www.google.com/maps?q=${lat},${lon}`;
+            mapLink.style.display = "block"; // แสดงปุ่มเปิดแผนที่
         }
 
-        // 3. ตรวจเลขท้าย 3 ตัว
-        function checkLast3() {
-            const val = document.getElementById('last3').value.trim();
-            const date = document.getElementById('drawDate').value;
-            const box = document.getElementById('resultBoxLast3');
-            const text = document.getElementById('resultTextLast3');
-
-            if (val.length !== 3 || isNaN(val)) {
-                box.style.display = 'block';
-                box.className = 'result-section result-fail';
-                text.innerHTML = '<strong>กรุณากรอกเลขท้ายให้ครบ 3 หลัก</strong>';
-                return;
-            }
-
-            const draw = lotteryDatabase[date];
-            box.style.display = 'block';
-            if (draw.last3.includes(val)) {
-                box.className = 'result-section result-success';
-                text.innerHTML = `<strong>🎯 ยินดีด้วยครับ! ถูกรางวัลเลขท้าย 3 ตัว (4,000 บาท)</strong>`;
-            } else {
-                box.className = 'result-section result-fail';
-                text.innerHTML = 'เสียใจด้วยครับ หมายเลขนี้ไม่ถูกรางวัลเลขท้าย 3 ตัว';
-            }
-        }
-
-        // 4. ตรวจเลขท้าย 2 ตัว
-        function checkLast2() {
-            const val = document.getElementById('last2').value.trim();
-            const date = document.getElementById('drawDate').value;
-            const box = document.getElementById('resultBoxLast2');
-            const text = document.getElementById('resultTextLast2');
-
-            if (val.length !== 2 || isNaN(val)) {
-                box.style.display = 'block';
-                box.className = 'result-section result-fail';
-                text.innerHTML = '<strong>กรุณากรอกเลขท้ายให้ครบ 2 หลัก</strong>';
-                return;
-            }
-
-            const draw = lotteryDatabase[date];
-            box.style.display = 'block';
-            if (val === draw.last2) {
-                box.className = 'result-section result-success';
-                text.innerHTML = `<strong>🎯 ยินดีด้วยครับ! ถูกรางวัลเลขท้าย 2 ตัว (2,000 บาท)</strong>`;
-            } else {
-                box.className = 'result-section result-fail';
-                text.innerHTML = 'เสียใจด้วยครับ หมายเลขนี้ไม่ถูกรางวัลเลขท้าย 2 ตัว';
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    gpsStatus.innerText = "❌ คุณปฏิเสธการเข้าถึงตำแหน่ง GPS";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    gpsStatus.innerText = "❌ ไม่สามารถหาตำแหน่งพิกัดได้";
+                    break;
+                case error.TIMEOUT:
+                    gpsStatus.innerText = "❌ หมดเวลารอรับสัญญาณพิกัด";
+                    break;
+                default:
+                    gpsStatus.innerText = "❌ เกิดข้อผิดพลาดที่ไม่รู้สาเหตุ";
+                    break;
             }
         }
     </script>
 
 </body>
 </html>
-<div style="text-align: center; margin: 2rem 0; padding: 1rem; color: #666; font-size: 0.9rem;">
-    <a href="privacy.html" style="color: #2e7d32; text-decoration: none;">นโยบายความเป็นส่วนตัว (Privacy Policy)</a>
-</div>
