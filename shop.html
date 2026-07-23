@@ -3,41 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PocketCloud Shop - สินค้าแนะนำ</title>
+    <title>PocketCloud Shop - คลังสินค้าแนะนำ</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
         body { background-color: #f4f7f6; color: #333; padding: 20px; }
         .container { max-width: 600px; margin: 0 auto; }
-        h1 { text-align: center; margin-bottom: 20px; color: #ff5722; font-size: 24px; }
-        .product-card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .product-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; color: #222; }
-        .product-desc { font-size: 14px; color: #666; margin-bottom: 15px; }
-        .btn-buy { display: inline-block; background: #ee4d2d; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 15px; font-weight: 600; text-align: center; width: 100%; }
+        h1 { text-align: center; margin-bottom: 5px; color: #f97316; font-size: 24px; }
+        .subtitle { text-align: center; font-size: 13px; color: #666; margin-bottom: 20px; }
+        
+        /* ฟอร์มเพิ่มสินค้าหลังบ้าน */
+        .admin-toggle { background: #333; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; margin-bottom: 15px; display: block; width: 100%; text-align: center; }
+        .admin-panel { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: none; border: 2px dashed #f97316; }
+        .admin-panel h3 { font-size: 16px; margin-bottom: 12px; color: #222; }
+        .form-group { margin-bottom: 12px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; font-family: 'Prompt', sans-serif; }
+        .form-group textarea { resize: vertical; height: 60px; }
+        .btn-submit { background: #f97316; color: #fff; border: none; padding: 10px; border-radius: 6px; width: 100%; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .btn-submit:hover { background: #e05d10; }
+
+        /* การ์ดสินค้า */
+        .product-card { background: #fff; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; gap: 8px; }
+        .product-title { font-size: 16px; font-weight: 600; color: #222; }
+        .product-desc { font-size: 13px; color: #555; }
+        .card-actions { display: flex; gap: 10px; margin-top: 5px; }
+        .btn-buy { flex: 2; background: #ee4d2d; color: #fff; padding: 8px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; text-align: center; }
         .btn-buy:hover { background: #d73211; }
+        .btn-delete { flex: 1; background: #ef4444; color: #fff; border: none; padding: 8px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .btn-delete:hover { background: #dc2626; }
+
         .back-link { display: block; text-align: center; margin-top: 20px; color: #666; text-decoration: none; font-size: 14px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>🛒 คลังสินค้าแนะนำของฉัน</h1>
+        <h1>🛒 คลังสินค้าแนะนำ (Affiliate)</h1>
+        <div class="subtitle">รวมสินค้าป้ายยาเด็ดๆ อัปเดตสดใหม่ตลอดเวลา</div>
 
-        <!-- รายการสินค้าที่ 1 (แบบมีแต่ข้อความและปุ่มสั่งซื้อ) -->
-        <div class="product-card">
-            <div class="product-title">น้ำมันพืช (แพ็ก 12 ขวด) ขนาด 250 มล.</div>
-            <div class="product-desc">น้ำมันพืชคุณภาพดีสำหรับทำอาหาร คุ้มค่าแพ็กใหญ่ ราคาประหยัด</div>
-            <!-- ลิงก์ Affiliate ของพี่เจมส์ -->
-            <a href="https://s.shopee.co.th/6AjeGOawtU" target="_blank" class="btn-buy">👉 ไปที่ร้านค้า / สั่งซื้อ</a>
+        <!-- ปุ่มเปิด/ปิด แผงควบคุมสำหรับแอดมิน (พี่เจมส์) -->
+        <button class="admin-toggle" onclick="toggleAdmin()">⚙️ เปิด/ปิด โหมดจัดการสินค้า (เพิ่ม-ลบ)</button>
+
+        <!-- ฟอร์มเพิ่มสินค้าใหม่ -->
+        <div class="admin-panel" id="adminPanel">
+            <h3>➕ เพิ่มสินค้า Affiliate ตัวใหม่</h3>
+            <div class="form-group">
+                <input type="text" id="prodTitle" placeholder="ชื่อสินค้า (เช่น น้ำมันพืชยกลังคุ้มๆ)">
+            </div>
+            <div class="form-group">
+                <textarea id="prodDesc" placeholder="รายละเอียดสั้นๆ / จุดเด่นสินค้า..."></textarea>
+            </div>
+            <div class="form-group">
+                <input type="url" id="prodUrl" placeholder="ลิงก์ Affiliate (เช่น https://s.shopee.co.th/...)">
+            </div>
+            <button class="btn-submit" onclick="addProduct()">🚀 บันทึกและแสดงสินค้า</button>
         </div>
 
-        <!-- 
-          วิธีเพิ่มสินค้าชิ้นต่อไปในอนาคต:
-          ก๊อปปี้บล็อก <div class="product-card">...</div> ด้านบนนี้มาวางต่อ แล้วเปลี่ยนชื่อสินค้าและลิงก์ใหม่ได้เลยครับ
-        -->
+        <!-- รายการสินค้าทั้งหมด -->
+        <div id="productList">
+            <!-- รายการจะถูกโหลดมาแสดงที่นี่อัตโนมัติ -->
+        </div>
 
         <a href="index.html" class="back-link">⬅️ กลับหน้าหลัก PocketCloud Hub</a>
     </div>
+
+    <script>
+        // โหลดสินค้าตอนเปิดหน้าเว็บ
+        window.onload = function() {
+            loadProducts();
+        }
+
+        // เปิดปิดแผงแอดมิน
+        function toggleAdmin() {
+            const panel = document.getElementById('adminPanel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // เพิ่มสินค้าใหม่
+        function addProduct() {
+            const title = document.getElementById('prodTitle').value.trim();
+            const desc = document.getElementById('prodDesc').value.trim();
+            const url = document.getElementById('prodUrl').value.trim();
+
+            if(!title || !url) {
+                alert('กรุณากรอกชื่อสินค้าและลิงก์ Affiliate ด้วยครับพี่เจมส์!');
+                return;
+            }
+
+            const newProduct = {
+                id: Date.now(),
+                title: title,
+                desc: desc ? desc : 'สินค้าแนะนำราคาพิเศษ คุ้มค่า น่าใช้งาน',
+                url: url
+            };
+
+            let products = JSON.parse(localStorage.getItem('pocketCloudProducts')) || [];
+            products.unshift(newProduct); // เอาอันใหม่ไว้บนสุด
+
+            localStorage.setItem('pocketCloudProducts', JSON.stringify(products));
+
+            // เคลียร์ฟอร์ม
+            document.getElementById('prodTitle').value = '';
+            document.getElementById('prodDesc').value = '';
+            document.getElementById('prodUrl').value = '';
+
+            loadProducts();
+            alert('เพิ่มสินค้าสำเร็จ! สินค้าแสดงบนหน้าเว็บเรียบร้อยครับ');
+        }
+
+        // โหลดและแสดงรายการสินค้า
+        function loadProducts() {
+            let products = JSON.parse(localStorage.getItem('pocketCloudProducts')) || [];
+            
+            // ถ้ายังไม่มีสินค้าเลย ให้ใส่สินค้าตัวอย่างตั้งต้นไว้ให้ก่อน
+            if (products.length === 0) {
+                products = [
+                    {
+                        id: 1,
+                        title: "น้ำมันพืชยกลังคุ้มๆ ราคาพิเศษ",
+                        desc: "ของดีต้องบอกต่อ ใช้ทำอาหารคุ้มมาก ประหยัดไปได้เยอะเลย",
+                        url: "https://s.shopee.co.th/6AjeGOawtU"
+                    }
+                ];
+                localStorage.setItem('pocketCloudProducts', JSON.stringify(products));
+            }
+
+            let html = '';
+            products.forEach(p => {
+                html += `
+                    <div class="product-card">
+                        <div class="product-title">${escapeHtml(p.title)}</div>
+                        <div class="product-desc">${escapeHtml(p.desc)}</div>
+                        <div class="card-actions">
+                            <a href="${escapeHtml(p.url)}" target="_blank" class="btn-buy">👉 ไปดูสินค้า / สั่งซื้อ</a>
+                            <button class="btn-delete" onclick="deleteProduct(${p.id})">🗑️ ลบ</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('productList').innerHTML = html;
+        }
+
+        // ลบสินค้าออกเมื่อหมดอายุ
+        function deleteProduct(id) {
+            if(confirm('ต้องการลบสินค้านี้ออกจากคลังใช่หรือไม่ครับ?')) {
+                let products = JSON.parse(localStorage.getItem('pocketCloudProducts')) || [];
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('pocketCloudProducts', JSON.stringify(products));
+                loadProducts();
+            }
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+    </script>
 
 </body>
 </html>
