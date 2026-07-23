@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PocketCloud Messenger - ห้องสนทนาสด</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
+        body { background-color: #0f172a; color: #f8fafc; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* ส่วนหัวแชต */
+        .chat-header {
+            background-color: #1e293b;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #334155;
+            position: relative;
+        }
+        .chat-header h1 { font-size: 1.2rem; color: #38bdf8; }
+        .chat-header p { font-size: 0.8rem; color: #94a3b8; }
+        .back-btn {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #334155;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+
+        /* กล่องแสดงข้อความแชต */
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 700px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .message-bubble {
+            background-color: #1e293b;
+            padding: 10px 14px;
+            border-radius: 12px;
+            max-width: 80%;
+            word-wrap: break-word;
+            border: 1px solid #334155;
+        }
+        .message-bubble.mine {
+            background-color: #0ea5e9;
+            align-self: flex-end;
+            border-color: #0284c7;
+        }
+        .msg-user {
+            font-size: 0.75rem;
+            color: #38bdf8;
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+        .mine .msg-user { color: #e0f2fe; }
+        .msg-text { font-size: 0.95rem; color: #f1f5f9; }
+
+        /* ส่วนพิมพ์ข้อความด้านล่าง */
+        .chat-input-area {
+            background-color: #1e293b;
+            padding: 15px;
+            border-top: 1px solid #334155;
+        }
+        .chat-form {
+            max-width: 700px;
+            margin: 0 auto;
+            display: flex;
+            gap: 10px;
+        }
+        .chat-form input {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background-color: #0f172a;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: 'Prompt', sans-serif;
+        }
+        .chat-form input:focus { outline: none; border-color: #0ea5e9; }
+        .send-btn {
+            background-color: #0ea5e9;
+            color: #fff;
+            border: none;
+            padding: 0 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Prompt', sans-serif;
+            transition: background 0.2s;
+        }
+        .send-btn:hover { background-color: #0284c7; }
+    </style>
+</head>
+<body>
+
+    <div class="chat-header">
+        <a href="index.html" class="back-btn">⬅️ กลับ</a>
+        <h1>💬 PocketCloud Messenger</h1>
+        <p>ห้องสนทนาสดออนไลน์เรียลไทม์</p>
+    </div>
+
+    <!-- กล่องแชต -->
+    <div class="chat-messages" id="chatMessages">
+        <!-- ข้อความตัวอย่างจำลองฟีล Messenger -->
+        <div class="message-bubble">
+            <div class="msg-user">แอดมินพี่เจมส์</div>
+            <div class="msg-text">สวัสดีครับ ยินดีต้อนรับสู่ห้องแชตส่วนตัว! 🚀</div>
+        </div>
+    </div>
+
+    <!-- ฟอร์มส่งข้อความ -->
+    <div class="chat-input-area">
+        <form class="chat-form" id="chatForm" onsubmit="sendMessage(event)">
+            <input type="text" id="userName" placeholder="ชื่อของคุณ..." style="max-width: 120px;" required>
+            <input type="text" id="messageText" placeholder="พิมพ์ข้อความส่งตรงนี้..." required>
+            <button type="submit" class="send-btn">ส่ง ✈️</button>
+        </form>
+    </div>
+
+    <script>
+        // ใช้ LocalStorage จำลองระบบแชตเบื้องต้นให้ใช้งานได้ทันที 
+        // (สามารถอัปเกรดเชื่อม Firebase Realtime Database ทีหลังได้เพื่อให้ข้อความเด้งข้ามเครื่องแบบสดๆ ครับ)
+        
+        window.onload = function() {
+            loadMessages();
+            // ตั้งเวลาให้รีเฟรชข้อความอัตโนมัติทุกๆ 2 วินาที (จำลองระบบเรียลไทม์)
+            setInterval(loadMessages, 2000);
+        }
+
+        function sendMessage(e) {
+            e.preventDefault();
+            const user = document.getElementById('userName').value.trim();
+            const text = document.getElementById('messageText').value.trim();
+
+            if(!user || !text) return;
+
+            const newMessage = {
+                id: Date.now(),
+                user: user,
+                text: text,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+
+            let messages = JSON.parse(localStorage.getItem('pocketCloudChat')) || [];
+            messages.push(newMessage);
+            
+            // เก็บไว้สูงสุด 50 ข้อความล่าสุด
+            if(messages.length > 50) messages.shift();
+
+            localStorage.setItem('pocketCloudChat', JSON.stringify(messages));
+
+            document.getElementById('messageText').value = '';
+            loadMessages();
+        }
+
+        function loadMessages() {
+            let messages = JSON.parse(localStorage.getItem('pocketCloudChat')) || [];
+            
+            if (messages.length === 0) {
+                messages = [
+                    { id: 1, user: "ระบบ", text: "ยินดีต้อนรับสู่ PocketCloud Messenger ครับ!", time: "00:00" }
+                ];
+                localStorage.setItem('pocketCloudChat', JSON.stringify(messages));
+            }
+
+            let html = '';
+            messages.forEach(m => {
+                html += `
+                    <div class="message-bubble">
+                        <div class="msg-user">${escapeHtml(m.user)} <span style="font-size: 0.65rem; color: #64748b; font-weight: normal;">${m.time}</span></div>
+                        <div class="msg-text">${escapeHtml(m.text)}</div>
+                    </div>
+                `;
+            });
+
+            const container = document.getElementById('chatMessages');
+            // เช็คว่าผู้ใช้อยู่ล่างสุดหรือยัง ถ้าอยู่ให้เลื่อนตามอัตโนมัติ
+            const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+            
+            container.innerHTML = html;
+
+            if (isAtBottom) {
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+    </script>
+
+</body>
+</html>
