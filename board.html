@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PocketCloud Board - บอร์ดป้ายยาแชร์ของดี</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
+        body { background-color: #f4f7f6; color: #333; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 5px; color: #ff5722; font-size: 24px; }
+        .subtitle { text-align: center; font-size: 13px; color: #666; margin-bottom: 20px; }
+        
+        /* ฟอร์มโพสต์ */
+        .post-form { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .post-form h3 { font-size: 16px; margin-bottom: 12px; color: #222; }
+        .form-group { margin-bottom: 12px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; font-family: 'Prompt', sans-serif; }
+        .form-group textarea { resize: vertical; height: 80px; }
+        .btn-submit { background: #ff5722; color: #fff; border: none; padding: 10px 15px; border-radius: 6px; width: 100%; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .btn-submit:hover { background: #e04a1b; }
+
+        /* รายการโพสต์ */
+        .post-card { background: #fff; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .post-author { font-size: 12px; color: #888; margin-bottom: 5px; }
+        .post-title { font-size: 16px; font-weight: 600; color: #222; margin-bottom: 5px; }
+        .post-desc { font-size: 14px; color: #555; margin-bottom: 10px; }
+        .btn-link { display: inline-block; background: #ee4d2d; color: #fff; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: 600; }
+        .btn-link:hover { background: #d73211; }
+
+        .back-link { display: block; text-align: center; margin-top: 20px; color: #666; text-decoration: none; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🔥 บอร์ดป้ายยาแชร์ของดี</h1>
+        <div class="subtitle">พื้นที่แชร์พิกัดของถูก ของลดราคา ป้ายยากันได้ตามสบาย!</div>
+
+        <!-- ฟอร์มสำหรับโพสต์ -->
+        <div class="post-form">
+            <h3>✍️ แชร์ของดี / ป้ายยาเพื่อน</h3>
+            <div class="form-group">
+                <input type="text" id="authorName" placeholder="ชื่อของคุณ (หรือนามแฝง)">
+            </div>
+            <div class="form-group">
+                <input type="text" id="postTitle" placeholder="ชื่อสินค้า / ของที่อยากป้ายยา">
+            </div>
+            <div class="form-group">
+                <textarea id="postDesc" placeholder="รีวิวสั้นๆ ทำไมถึงน่าซื้อ พิกัดอยู่ไหน..."></textarea>
+            </div>
+            <div class="form-group">
+                <input type="url" id="postUrl" placeholder="ลิงก์พิกัดสินค้า (ถ้ามี เช่น https://...)">
+            </div>
+            <button class="btn-submit" onclick="addPost()">🚀 โพสต์ลงบอร์ด</button>
+        </div>
+
+        <!-- แสดงรายการโพสต์ -->
+        <div id="postList">
+            <!-- โพสต์ตัวอย่าง -->
+            <div class="post-card">
+                <div class="post-author">โดย: แอดมินพี่เจมส์ (ตัวอย่าง)</div>
+                <div class="post-title">น้ำมันพืชยกลังคุ้มๆ ราคาพิเศษ</div>
+                <div class="post-desc">ของดีต้องบอกต่อ ใช้ทำอาหารคุ้มมาก ประหยัดไปได้เยอะเลย</div>
+                <a href="https://s.shopee.co.th/6AjeGOawtU" target="_blank" class="btn-link">👉 ไปดูพิกัด</a>
+            </div>
+        </div>
+
+        <a href="index.html" class="back-link">⬅️ กลับหน้าหลัก PocketCloud Hub</a>
+    </div>
+
+    <script>
+        // โหลดข้อมูลเก่าที่เคยโพสต์ไว้ (เก็บไว้ในเครื่องผู้ใช้)
+        window.onload = function() {
+            loadPosts();
+        }
+
+        function addPost() {
+            const author = document.getElementById('authorName').value.trim();
+            const title = document.getElementById('postTitle').value.trim();
+            const desc = document.getElementById('postDesc').value.trim();
+            const url = document.getElementById('postUrl').value.trim();
+
+            if(!title || !desc) {
+                alert('กรุณากรอกชื่อสินค้าและรายละเอียดด้วยครับพี่เจมส์!');
+                return;
+            }
+
+            const newPost = {
+                author: author ? author : 'Anonymous',
+                title: title,
+                desc: desc,
+                url: url ? url : '#'
+            };
+
+            // ดึงข้อมูลเดิมจาก localStorage
+            let posts = JSON.parse(localStorage.getItem('pocketCloudPosts')) || [];
+            posts.unshift(newPost); // เอาอันใหม่ไว้บนสุด
+
+            // บันทึกกลับ
+            localStorage.setItem('pocketCloudPosts', JSON.stringify(posts));
+
+            // เคลียร์ฟอร์ม
+            document.getElementById('postTitle').value = '';
+            document.getElementById('postDesc').value = '';
+            document.getElementById('postUrl').value = '';
+
+            loadPosts();
+        }
+
+        function loadPosts() {
+            let posts = JSON.parse(localStorage.getItem('pocketCloudPosts')) || [];
+            let html = '';
+
+            // ใส่โพสต์ตัวอย่างไว้ด้านล่างสุดเสมอถ้ายังไม่มีการลบ
+            posts.forEach(p => {
+                html += `
+                    <div class="post-card">
+                        <div class="post-author">โดย: ${escapeHtml(p.author)}</div>
+                        <div class="post-title">${escapeHtml(p.title)}</div>
+                        <div class="post-desc">${escapeHtml(p.desc)}</div>
+                        ${p.url !== '#' ? `<a href="${escapeHtml(p.url)}" target="_blank" class="btn-link">👉 ไปดูพิกัด</a>` : ''}
+                    </div>
+                `;
+            });
+
+            // เพิ่มโพสต์ตัวอย่างปิดท้าย
+            html += `
+                <div class="post-card">
+                    <div class="post-author">โดย: แอดมินพี่เจมส์</div>
+                    <div class="post-title">น้ำมันพืชยกลังคุ้มๆ ราคาพิเศษ</div>
+                    <div class="post-desc">ของดีต้องบอกต่อ ใช้ทำอาหารคุ้มมาก ประหยัดไปได้เยอะเลย</div>
+                    <a href="https://s.shopee.co.th/6AjeGOawtU" target="_blank" class="btn-link">👉 ไปดูพิกัด</a>
+                </div>
+            `;
+
+            document.getElementById('postList').innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+    </script>
+
+</body>
+</html>
