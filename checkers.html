@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberCore - หมากฮอสไทย</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            font-size: 1.5rem;
+            color: #38bdf8;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        .status {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            padding: 8px 15px;
+            background-color: #1e293b;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            text-align: center;
+        }
+        .board-container {
+            width: 100%;
+            max-width: 360px;
+            aspect-ratio: 1 / 1;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            border: 4px solid #334155;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+        .cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+        }
+        .light {
+            background-color: #f1f5f9;
+        }
+        .dark {
+            background-color: #475569;
+        }
+        .cell.highlight {
+            background-color: #38bdf8 !important;
+        }
+        .piece {
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), 0 4px 6px rgba(0,0,0,0.3);
+            transition: transform 0.1s;
+        }
+        .piece.red {
+            background: radial-gradient(circle at 30% 30%, #f87171, #dc2626);
+            color: #fee2e2;
+        }
+        .piece.blue {
+            background: radial-gradient(circle at 30% 30%, #60a5fa, #2563eb);
+            color: #eff6ff;
+        }
+        .piece.king::after {
+            content: '👑';
+            font-size: 1rem;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 360px;
+        }
+        .btn {
+            flex: 1;
+            background-color: #334155;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background-color: #0ea5e9;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>♟️ หมากฮอสไทย (Thai Checkers)</h1>
+    <div id="status" class="status">ตาเดิน: ฝ่ายสีแดง (🔴)</div>
+
+    <div class="board-container" id="board"></div>
+
+    <div class="btn-group">
+        <button class="btn" onclick="resetGame()">🔄 เริ่มเกมใหม่</button>
+        <a href="index.html" class="btn" style="background-color: #475569;">🏠 กลับหน้าหลัก</a>
+    </div>
+
+    <script>
+        const boardElement = document.getElementById('board');
+        const statusElement = document.getElementById('status');
+
+        // กระดาน 8x8: 0 = ว่าง, 1 = เบี้ยแดง, 2 = ฮอสแดง, -1 = เบี้ยน้ำเงิน, -2 = ฮอสน้ำเงิน
+        let board = [];
+        let turn = 1; // 1 = แดงเดิน, -1 = น้ำเงินเดิน
+        let selectedPiece = null;
+        let validMoves = [];
+
+        function resetGame() {
+            board = [
+                [ 0, -1,  0, -1,  0, -1,  0, -1],
+                [-1,  0, -1,  0, -1,  0, -1,  0],
+                [ 0, -1,  0, -1,  0, -1,  0, -1],
+                [ 0,  0,  0,  0,  0,  0,  0,  0],
+                [ 0,  0,  0,  0,  0,  0,  0,  0],
+                [ 1,  0,  1,  0,  1,  0,  1,  0],
+                [ 0,  1,  0,  1,  0,  1,  0,  1],
+                [ 1,  0,  1,  0,  1,  0,  1,  0]
+            ];
+            turn = 1;
+            selectedPiece = null;
+            validMoves = [];
+            renderBoard();
+        }
+
+        function renderBoard() {
+            boardElement.innerHTML = '';
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = `cell ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+
+                    // เช็คช่องที่เลือกเดินได้
+                    if (validMoves.some(m => m.r === r && m.c === c)) {
+                        cell.classList.add('highlight');
+                    }
+
+                    const pieceVal = board[r][c];
+                    if (pieceVal !== 0) {
+                        const piece = document.createElement('div');
+                        piece.className = 'piece';
+                        if (pieceVal > 0) {
+                            piece.classList.add('red');
+                            if (pieceVal === 2) piece.classList.add('king');
+                        } else {
+                            piece.classList.add('blue');
+                            if (pieceVal === -2) piece.classList.add('king');
+                        }
+                        cell.appendChild(piece);
+                    }
+
+                    cell.addEventListener('click', () => handleCellClick(r, c));
+                    boardElement.appendChild(cell);
+                }
+            }
+
+            statusElement.innerHTML = turn === 1 ? "ตาเดิน: ฝ่ายสีแดง (🔴)" : "ตาเดิน: ฝ่ายสีน้ำเงิน (🔵)";
+        }
+
+        function handleCellClick(r, c) {
+            const piece = board[r][c];
+
+            // ถ้าคลิกเลือกหมากตัวเอง
+            if ((turn === 1 && piece > 0) || (turn === -1 && piece < 0)) {
+                selectedPiece = { r, c };
+                calculateMoves(r, c, piece);
+                renderBoard();
+                return;
+            }
+
+            // ถ้าคลิกเดินไปยังช่องที่ไฮไลต์ไว้
+            const move = validMoves.find(m => m.r === r && m.c === c);
+            if (move && selectedPiece) {
+                // ย้ายหมาก
+                board[move.r][move.c] = board[selectedPiece.r][selectedPiece.c];
+                board[selectedPiece.r][selectedPiece.c] = 0;
+
+                // ถ้ามีการกินข้าม
+                if (move.jump) {
+                    board[move.jumpR][move.jumpC] = 0;
+                }
+
+                // เปลี่ยนเป็นฮอส (King) ถ้าเดินถึงสุดกระดาน
+                if (turn === 1 && move.r === 0) board[move.r][move.c] = 2;
+                if (turn === -1 && move.r === 7) board[move.r][move.c] = -2;
+
+                // เปลี่ยนตาเดิน
+                turn = -turn;
+                selectedPiece = null;
+                validMoves = [];
+                renderBoard();
+            }
+        }
+
+        function calculateMoves(r, c, piece) {
+            validMoves = [];
+            const isKing = Math.abs(piece) === 2;
+            const directions = [];
+
+            // กำหนดทิศทางการเดินตามฝั่ง
+            if (piece > 0 || isKing) directions.push(-1); // เดินขึ้น
+            if (piece < 0 || isKing) directions.push(1);  // เดินลง
+
+            directions.forEach(dr => {
+                [-1, 1].forEach(dc => {
+                    let nextR = r + dr;
+                    let nextC = c + dc;
+
+                    if (isValidCoord(nextR, nextC)) {
+                        if (board[nextR][nextC] === 0 && !isKing) {
+                            // เบี้ยเดินธรรมดาได้ทีละ 1 ช่องเฉพาะแนวทิศทางของตัวเอง
+                            if ((piece > 0 && dr === -1) || (piece < 0 && dr === 1)) {
+                                validMoves.push({ r: nextR, c: nextC });
+                            }
+                        } else if (board[nextR][nextC] !== 0 && Math.sign(board[nextR][nextC]) !== Math.sign(piece)) {
+                            // อาจจะมีการกระโดดกิน
+                            let jumpR = nextR + dr;
+                            let jumpC = nextC + dc;
+                            if (isValidCoord(jumpR, jumpC) && board[jumpR][jumpC] === 0) {
+                                validMoves.push({ r: jumpR, c: jumpC, jump: true, jumpR: nextR, jumpC: nextC });
+                            }
+                        }
+
+                        // ถ้าเป็นฮอส เดินยาวได้หลายช่อง
+                        if (isKing) {
+                            let kr = r + dr;
+                            let kc = c + dc;
+                            let jumped = null;
+                            while (isValidCoord(kr, kc)) {
+                                if (board[kr][kc] === 0) {
+                                    validMoves.push({ r: kr, c: kc, jump: !!jumped, jumpR: jumped ? jumped.r : null, jumpC: jumped ? jumped.c : null });
+                                } else {
+                                    if (Math.sign(board[kr][kc]) === Math.sign(piece)) break; // ชนพวกเดียวกัน
+                                    if (jumped) break; // ชนตัวที่สองแล้ว เดินต่อไม่ได้
+                                    jumped = { r: kr, c: kc };
+                                }
+                                kr += dr;
+                                kc += dc;
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        function isValidCoord(r, c) {
+            return r >= 0 && r < 8 && c >= 0 && c < 8;
+        }
+
+        // เริ่มต้นเกมครั้งแรก
+        resetGame();
+    </script>
+
+</body>
+</html>
