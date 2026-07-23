@@ -10,12 +10,10 @@
         body { background-color: #f4f7f6; color: #333; padding: 20px; }
         .container { max-width: 600px; margin: 0 auto; }
         h1 { text-align: center; margin-bottom: 20px; color: #ff5722; font-size: 24px; }
-        .product-card { background: #fff; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; gap: 15px; align-items: center; }
-        .product-img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; background: #eee; }
-        .product-info { flex: 1; }
-        .product-title { font-size: 16px; font-weight: 600; margin-bottom: 5px; color: #222; }
-        .product-desc { font-size: 13px; color: #666; margin-bottom: 10px; }
-        .btn-buy { display: inline-block; background: #ee4d2d; color: #fff; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600; }
+        .product-card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .product-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; color: #222; }
+        .product-desc { font-size: 14px; color: #666; margin-bottom: 15px; }
+        .btn-buy { display: inline-block; background: #ee4d2d; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 15px; font-weight: 600; text-align: center; width: 100%; }
         .btn-buy:hover { background: #d73211; }
         .back-link { display: block; text-align: center; margin-top: 20px; color: #666; text-decoration: none; font-size: 14px; }
     </style>
@@ -25,21 +23,17 @@
     <div class="container">
         <h1>🛒 คลังสินค้าแนะนำของฉัน</h1>
 
-        <!-- รายการสินค้าที่ 1 (ผูกลิงก์ Affiliate ใหม่เรียบร้อย) -->
+        <!-- รายการสินค้าที่ 1 (แบบมีแต่ข้อความและปุ่มสั่งซื้อ) -->
         <div class="product-card">
-            <!-- ใส่ลิงก์รูปสินค้าจริงที่อัปโหลดไว้บน GitHub ตรง src="..." ได้เลยครับ -->
-            <img src="ใส่ลิงก์รูปสินค้าจริงตรงนี้" alt="น้ำมันพืช" class="product-img">
-            <div class="product-info">
-                <div class="product-title">น้ำมันพืช (แพ็ก 12 ขวด) ขนาด 250 มล.</div>
-                <div class="product-desc">น้ำมันพืชคุณภาพดีสำหรับทำอาหาร คุ้มค่าแพ็กใหญ่</div>
-                <!-- ลิงก์ Affiliate ใหม่ถูกใส่ไว้เรียบร้อย -->
-                <a href="https://s.shopee.co.th/6AjeGOawtU" target="_blank" class="btn-buy">👉 ไปที่ร้านค้า / สั่งซื้อ</a>
-            </div>
+            <div class="product-title">น้ำมันพืช (แพ็ก 12 ขวด) ขนาด 250 มล.</div>
+            <div class="product-desc">น้ำมันพืชคุณภาพดีสำหรับทำอาหาร คุ้มค่าแพ็กใหญ่ ราคาประหยัด</div>
+            <!-- ลิงก์ Affiliate ของพี่เจมส์ -->
+            <a href="https://s.shopee.co.th/6AjeGOawtU" target="_blank" class="btn-buy">👉 ไปที่ร้านค้า / สั่งซื้อ</a>
         </div>
 
         <!-- 
-          วิธีเพิ่มสินค้าชิ้นต่อไป:
-          ก๊อปปี้บล็อก <div class="product-card">...</div> ด้านบนนี้มาวางต่อ แล้วเปลี่ยนรูป ชื่อ และลิงก์ Affiliate ใหม่ได้เลยครับ
+          วิธีเพิ่มสินค้าชิ้นต่อไปในอนาคต:
+          ก๊อปปี้บล็อก <div class="product-card">...</div> ด้านบนนี้มาวางต่อ แล้วเปลี่ยนชื่อสินค้าและลิงก์ใหม่ได้เลยครับ
         -->
 
         <a href="index.html" class="back-link">⬅️ กลับหน้าหลัก PocketCloud Hub</a>
