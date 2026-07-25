@@ -24,7 +24,7 @@
     <div class="container">
         <div class="card">
             <h1>📈 Stock & Investment Hub</h1>
-            <p>// ระบบติดตามกระดานหุ้นและพอร์ตลงทุน (อัปเดตราคาอัตโนมัติ)</p>
+            <p>// ระบบติดตามกระดานหุ้นและพอร์ตลงทุน (เชื่อมต่อ Real-time API)</p>
             
             <h3 style="color: #34d399; font-size: 1rem; margin-bottom: 5px;">💼 พอร์ตจำลอง & สินทรัพย์</h3>
             <table class="stock-table">
@@ -49,8 +49,8 @@
                     <td class="text-green">+3.00 (+3.1%)</td>
                 </tr>
                 <tr>
-                    <td>BTC / USD (Crypto Real-time)</td>
-                    <td id="btcPrice" style="color: #38bdf8; font-weight: bold;">กำลังโหลด...</td>
+                    <td>BTC / USD (Crypto)</td>
+                    <td id="btcPrice" style="color: #38bdf8; font-weight: bold;">กำลังโหลดราคาจริง...</td>
                     <td class="text-green">Live API</td>
                 </tr>
             </table>
@@ -60,7 +60,7 @@
     </div>
 
     <script>
-        // ฟังก์ชันดึงราคา Bitcoin แบบเรียลไทม์จาก CoinGecko API ฟรี
+        // ฟังก์ชันดึงราคา Bitcoin แบบเรียลไทม์จาก CoinGecko API
         async function fetchCryptoPrice() {
             try {
                 const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
@@ -68,15 +68,15 @@
                 const price = data.bitcoin.usd;
                 document.getElementById('btcPrice').innerText = '$' + price.toLocaleString();
             } catch (error) {
-                document.getElementById('btcPrice').innerText = 'โหลดไม่สำเร็จ';
+                document.getElementById('btcPrice').innerText = 'ไม่สามารถโหลดข้อมูลได้';
             }
         }
 
-        // โหลดทันทีเมื่อเปิดหน้าเว็บ
+        // โหลดทันทีเมื่อเข้าหน้าเว็บ
         fetchCryptoPrice();
 
-        // อัปเดตทุกๆ 60 วินาที
-        setInterval(fetchCryptoPrice, 60000);
+        // ตั้งเวลาให้ดึงข้อมูลใหม่ทุกๆ 30 วินาทีอัตโนมัติ
+        setInterval(fetchCryptoPrice, 30000);
     </script>
 </body>
 </html>
