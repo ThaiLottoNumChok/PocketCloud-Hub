@@ -317,14 +317,14 @@
             </div>
         </div>
 
-        <!-- หมวดที่ 6: กระดานหุ้น & ตลาดทุน (เปิดในหน้าเดียวกัน ไม่ต้องสร้างไฟล์เพิ่ม) -->
+        <!-- หมวดที่ 6: กระดานหุ้น & ตลาดทุน -->
         <div class="card" style="border: 1px solid #10b98155; background-color: #0f172a;">
             <h2 style="color: #34d399; border-left: 4px solid #34d399;">📈 6. Stock & Investment Hub</h2>
             <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 12px;">
-                // ระบบติดตามกระดานหุ้นและพอร์ตลงทุนสไตล์นักลงทุน
+                // ระบบติดตามกระดานหุ้นและพอร์ตลงทุนสไตล์ตลาดทุนสากล
             </p>
             <div class="link-group">
-                <button onclick="toggleStockBox()" class="btn" style="background-color: #059669; color: #fff; font-weight: bold; width: 100%; text-align: center;">📊 เปิด/ปิด กระดานหุ้นส่วนตัว</button>
+                <button onclick="toggleStockBox()" class="btn" style="background-color: #10b981; color: #fff; font-weight: bold; width: 100%; text-align: center;">📊 เปิดกระดานหุ้นและพอร์ตลงทุน</button>
             </div>
             
             <div id="stockHubBox" class="embedded-box">
@@ -359,14 +359,14 @@
             </div>
         </div>
 
-        <!-- หมวดที่ 7: เกมกระดานหมากฮอสไทย (เปิดในหน้าเดียวกัน ไม่ต้องสร้างไฟล์เพิ่ม) -->
+        <!-- หมวดที่ 7: เกมกระดานหมากฮอสไทย -->
         <div class="card" style="border: 1px solid #38bdf855; background-color: #0f172a;">
             <h2 style="color: #38bdf8; border-left: 4px solid #38bdf8;">♟️ 7. Thai Checkers Arena</h2>
             <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 12px;">
-                // เกมกระดานหมากฮอสไทยคลาสสิก (โหมดซ้อมชิงแชมป์ประเทศไทย)
+                // เกมกระดานหมากฮอสไทยคลาสสิก ดวลสมอง 2 ผู้เล่น (โหมดซ้อมสนาม)
             </p>
             <div class="link-group">
-                <button onclick="toggleCheckersBox()" class="btn" style="background-color: #0284c7; color: #fff; font-weight: bold; width: 100%; text-align: center;">🎮 เปิด/ปิด กระดานซ้อมหมากฮอส</button>
+                <button onclick="toggleCheckersBox()" class="btn" style="background-color: #0284c7; color: #fff; font-weight: bold; width: 100%; text-align: center;">🎮 เปิดกระดานหมากฮอส</button>
             </div>
 
             <div id="checkersBox" class="embedded-box" style="text-align: center;">
@@ -457,4 +457,6 @@
                 reader.onload = function(e) {
                     const img = document.createElement('img');
                     img.src = e.target.result;
-                    img.className = 'ga
+                    img.className = 'gallery-item';
+                    galleryContainer.appendChild(img);
+                }
