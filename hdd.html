@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Hard Disk - PocketCloud Hub</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .window-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #1e293b;
+            padding: 12px 20px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            border: 1px solid #334155;
+            border-bottom: none;
+        }
+        .window-title {
+            font-size: 1rem;
+            color: #38bdf8;
+            font-weight: bold;
+        }
+        .window-controls span {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 6px;
+        }
+        .btn-close { background-color: #ef4444; }
+        .btn-minimize { background-color: #f59e0b; }
+        .btn-maximize { background-color: #10b981; }
+
+        .explorer-body {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            padding: 20px;
+            min-height: 400px;
+        }
+        .drive-info {
+            background-color: #0f172a;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            margin-bottom: 20px;
+        }
+        .progress-bar-bg {
+            background-color: #334155;
+            border-radius: 10px;
+            height: 10px;
+            width: 100%;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            background-color: #38bdf8;
+            height: 100%;
+            width: 45%;
+        }
+        
+        .grid-files {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 15px;
+        }
+        .file-item {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .file-item:hover {
+            border-color: #38bdf8;
+            background-color: #172554;
+            transform: translateY(-2px);
+        }
+        .file-icon {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+        }
+        .file-name {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            word-break: break-all;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 15px;
+            background-color: #334155;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        .back-btn:hover {
+            background-color: #475569;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- จำลองแถบหัวหน้าต่างโปรแกรม -->
+        <div class="window-header">
+            <div class="window-title">📁 Local Disk (C:) - PocketCloud Virtual Storage</div>
+            <div class="window-controls">
+                <span class="btn-minimize"></span>
+                <span class="btn-maximize"></span>
+                <span class="btn-close"></span>
+            </div>
+        </div>
+
+        <div class="explorer-body">
+            <a href="index.html" class="back-btn">⬅️ กลับสู่หน้าหลัก PocketCloud Hub</a>
+
+            <!-- สถานะความจุฮาร์ดดิสก์ -->
+            <div class="drive-info">
+                <p style="font-size: 0.9rem; color: #94a3b8;">💾 Local Disk (C:) พื้นที่เก็บข้อมูลระบบส่วนตัว</p>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 5px; color: #cbd5e1;">
+                    <span>ใช้ไป 45.2 GB จาก 500 GB</span>
+                    <span style="color: #38bdf8;">ว่าง 454.8 GB</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill"></div>
+                </div>
+            </div>
+
+            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 12px;">🗂️ โฟลเดอร์และไฟล์จำลองในระบบ:</p>
+
+            <!-- รายการจำลองโฟลเดอร์/ไฟล์ -->
+            <div class="grid-files">
+                <div class="file-item" onclick="alert('📂 เปิดโฟลเดอร์: System_Scripts (สถานะ: สมบูรณ์)')">
+                    <div class="file-icon">📁</div>
+                    <div class="file-name">System_Scripts</div>
+                </div>
+                <div class="file-item" onclick="alert('📂 เปิดโฟลเดอร์: Stream_Assets (สถานะ: พร้อมใช้งาน)')">
+                    <div class="file-icon">📁</div>
+                    <div class="file-name">Stream_Assets</div>
+                </div>
+                <div class="file-item" onclick="alert('📜 เปิดไฟล์: config.json (สถานะ: ปกติ)')">
+                    <div class="file-icon">📜</div>
+                    <div class="file-name">config.json</div>
+                </div>
+                <div class="file-item" onclick="alert('🖼️ เปิดไฟล์ภาพ: banner.png')">
+                    <div class="file-icon">🖼️</div>
+                    <div class="file-name">banner.png</div>
+                </div>
+                <div class="file-item" onclick="alert('⚡ ไฟล์ระบบลับ: secret_code.html')">
+                    <div class="file-icon">⚙️</div>
+                    <div class="file-name">secret.html</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
