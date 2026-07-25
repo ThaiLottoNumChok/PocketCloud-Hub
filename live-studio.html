@@ -29,6 +29,8 @@
         .btn-danger:hover { background-color: #991b1b; }
         .btn-success { background-color: #10b981; color: #fff; }
         .btn-success:hover { background-color: #059669; }
+        .btn-warning { background-color: #f59e0b; color: #fff; }
+        .btn-warning:hover { background-color: #d97706; }
 
         input[type="text"], textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155; background-color: #0f172a; color: #fff; font-size: 0.9rem; resize: vertical; }
         
@@ -52,7 +54,7 @@
         <!-- ส่วนหัวข้อหลัก -->
         <div class="card">
             <h1>🎙️ Ultimate Live Studio</h1>
-            <p>// ศูนย์ควบคุมระบบไลฟ์สด พรีวิวกล้อง จับเวลา และสคริปต์ในหน้าเดียว</p>
+            <p>// ศูนย์ควบคุมระบบไลฟ์สด พรีวิวกล้อง สลับกล้อง จับเวลา และสคริปต์</p>
             
             <!-- หน้าจอพรีวิวเว็บแคม -->
             <div class="preview-container">
@@ -62,6 +64,7 @@
 
             <div class="control-group">
                 <button class="btn btn-success" id="startCamBtn">🟢 เปิดกล้อง</button>
+                <button class="btn btn-warning" id="switchCamBtn">🔄 สลับกล้อง</button>
                 <button class="btn btn-danger" id="stopCamBtn">🔴 ปิดกล้อง</button>
             </div>
 
@@ -123,18 +126,36 @@
     </div>
 
     <script>
-        // ระบบกล้องเว็บแคม
+        // ระบบกล้องเว็บแคมและการสลับกล้องหน้า/หลัง
         const videoElement = document.getElementById('webcamVideo');
         const displayOverlay = document.getElementById('displayOverlay');
         let mediaStream = null;
+        let useFrontCamera = true;
 
-        document.getElementById('startCamBtn').addEventListener('click', async () => {
+        async function openCamera(front = true) {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+            }
             try {
-                mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                const constraints = {
+                    video: { facingMode: front ? 'user' : 'environment' },
+                    audio: false
+                };
+                mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
                 videoElement.srcObject = mediaStream;
             } catch (err) {
                 alert('ไม่สามารถเปิดกล้องได้ กรุณาตรวจสอบสิทธิ์การเข้าถึง: ' + err.message);
             }
+        }
+
+        document.getElementById('startCamBtn').addEventListener('click', () => {
+            useFrontCamera = true;
+            openCamera(useFrontCamera);
+        });
+
+        document.getElementById('switchCamBtn').addEventListener('click', () => {
+            useFrontCamera = !useFrontCamera;
+            openCamera(useFrontCamera);
         });
 
         document.getElementById('stopCamBtn').addEventListener('click', () => {
