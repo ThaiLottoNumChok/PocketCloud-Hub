@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Streamer Guide & Hub - คู่มือและศูนย์รวมการไลฟ์สด</title>
+    <title>Streamer Hub & Guide - ศูนย์รวมการไลฟ์สดและกล้องมอนิเตอร์</title>
     <style>
         * {
             box-sizing: border-box;
@@ -51,6 +51,60 @@
             border-left: 4px solid #c084fc;
             padding-left: 10px;
         }
+        .btn {
+            background-color: #334155;
+            color: #f1f5f9;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+            font-weight: bold;
+            text-align: center;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        /* ส่วนจอจำลอง MCR & กล้อง */
+        .mcr-screen {
+            background-color: #000;
+            border: 2px solid #38bdf8;
+            height: 220px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #webcamVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        .mcr-placeholder {
+            color: #38bdf8;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 10px;
+        }
+        .live-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #ef4444;
+            color: white;
+            padding: 3px 10px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border-radius: 4px;
+            display: none;
+        }
+
         .platform-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -111,21 +165,40 @@
 <body>
 
     <header>
-        <h1>📖 Streamer Guide & Hub</h1>
-        <p>คู่มือเริ่มต้นและศูนย์รวมลิงก์แพลตฟอร์มไลฟ์สดสำหรับทุกคน</p>
+        <h1>🎙️ Streamer Hub & Camera Monitor</h1>
+        <p>ศูนย์รวมกล้องมอนิเตอร์ คู่มือ และทางด่วนไลฟ์สดครบวงจร</p>
     </header>
 
     <div class="container">
 
-        <!-- หมวด: คำแนะนำการใช้งานสำหรับคนทั่วไป -->
+        <!-- หมวด: จอภาพจำลอง MCR & กล้องหน้า (ตามคำเรียกร้อง!) -->
         <div class="card" style="border-color: #38bdf855;">
+            <h2>📺 หน้าจอมอนิเตอร์กล้องสุดล้ำ (Camera & MCR Preview)</h2>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 12px;">เปิดกล้องหน้าเช็กมุมมองและความพร้อมก่อนลุยจริง</p>
+            
+            <div class="mcr-screen" id="mcrScreen">
+                <div class="live-badge" id="liveBadge">🔴 ON AIR</div>
+                <div class="mcr-placeholder" id="mcrText">
+                    📴 กล้องยังไม่เปิด<br>กดปุ่มด้านล่างเพื่อเปิดกล้องเช็กมุมมอง
+                </div>
+                <video id="webcamVideo" autoplay playsinline></video>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 12px;">
+                <button onclick="toggleCamera()" class="btn" style="flex: 1; background-color: #0ea5e9;" id="camBtn">📷 เปิดกล้องหน้า</button>
+                <button onclick="toggleSimulateLive()" class="btn" style="flex: 1; background-color: #ef4444;" id="liveBtn">🔴 จำลองสถานะออนแอร์</button>
+            </div>
+        </div>
+
+        <!-- หมวด: คำแนะนำการใช้งานสำหรับคนทั่วไป -->
+        <div class="card" style="border-color: #c084fc55;">
             <h2>💡 คำแนะนำ: วิธีไลฟ์สดให้ง่ายที่สุด</h2>
             <div class="guide-box">
-                <p>สำหรับบุคคลทั่วไปที่ต้องการไลฟ์สดออกช่องตัวเอง หรืออยากกระจายสัญญาณไปหลายแพลตฟอร์มพร้อมกัน แนะนำให้ใช้งานผ่านเครื่องมือเหล่านี้ครับ:</p>
+                <p>สำหรับบุคคลทั่วไปที่ต้องการไลฟ์สดออกช่องตัวเอง แนะนำวิธีใช้งานเบื้องต้นดังนี้ครับ[cite: 4]:</p>
                 <ol>
-                    <li><strong>ใช้แอปมือถือช่วยยิงสัญญาณ:</strong> โหลดแอปเช่น <em>Prism Live Studio</em> หรือ <em>Streamlabs</em> มาไว้ในมือถือ</li>
-                    <li><strong>ตั้งค่าช่องส่วนตัว:</strong> นำ <em>Stream Key</em> จากช่อง YouTube หรือ Facebook ของตัวเองไปใส่ในแอป</li>
-                    <li><strong>ต่างคนต่างไลฟ์:</strong> ทุกคนสามารถล็อกอินบัญชีส่วนตัวและกดไลฟ์แยกย้ายกันได้อย่างอิสระผ่านแอปเหล่านี้ครับ</li>
+                    <li><strong>ใช้แอปมือถือช่วยยิงสัญญาณ:</strong> โหลดแอปเช่น <em>Prism Live Studio</em> หรือ <em>Streamlabs</em>[cite: 4]</li>
+                    <li><strong>ตั้งค่าช่องส่วนตัว:</strong> นำ <em>Stream Key</em> จากช่อง YouTube หรือ Facebook ของตัวเองไปใส่ในแอป[cite: 4]</li>
+                    <li><strong>ต่างคนต่างไลฟ์:</strong> ทุกคนสามารถล็อกอินบัญชีส่วนตัวและกดไลฟ์แยกย้ายกันได้อย่างอิสระ[cite: 4]</li>
                 </ol>
             </div>
         </div>
@@ -144,9 +217,9 @@
         </div>
 
         <!-- หมวด: แนะนำเว็บตัวกลางสตรีมมิ่ง -->
-        <div class="card" style="border-color: #c084fc55;">
+        <div class="card" style="border-color: #38bdf855;">
             <h2>🌐 เว็บตัวกลางกระจายสัญญาณ (Multi-stream)</h2>
-            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">หากต้องการส่งภาพทีเดียวไปทุกแพลตฟอร์ม แนะนำให้ใช้งานผ่านเว็บตัวกลางเหล่านี้:</p>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">หากต้องการส่งภาพทีเดียวไปทุกแพลตฟอร์ม แนะนำเว็บตัวกลางเหล่านี้[cite: 4]:</p>
             <div style="display: flex; gap: 10px;">
                 <a href="https://restream.io" target="_blank" class="btn-platform" style="flex: 1; background-color: #f97316;">🟠 Restream.io</a>
                 <a href="https://aircast.app" target="_blank" class="btn-platform" style="flex: 1; background-color: #059669;">🟢 Aircast</a>
@@ -157,5 +230,51 @@
 
     </div>
 
+    <script>
+        // ควบคุมกล้องหน้ามือถือ
+        let videoStream = null;
+        const videoElement = document.getElementById('webcamVideo');
+        const mcrText = document.getElementById('mcrText');
+        const camBtn = document.getElementById('camBtn');
+
+        async function toggleCamera() {
+            if (!videoStream) {
+                try {
+                    videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+                    videoElement.srcObject = videoStream;
+                    videoElement.style.display = "block";
+                    mcrText.style.display = "none";
+                    camBtn.innerText = "❌ ปิดกล้อง";
+                    camBtn.style.backgroundColor = "#b91c1c";
+                } catch (err) {
+                    alert('ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตสิทธิ์การเข้าถึงกล้องในเบราว์เซอร์ครับ');
+                }
+            } else {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+                videoElement.style.display = "none";
+                mcrText.style.display = "block";
+                camBtn.innerText = "📷 เปิดกล้องหน้า";
+                camBtn.style.backgroundColor = "#0ea5e9";
+            }
+        }
+
+        // ควบคุมจำลองออนแอร์
+        let isLive = false;
+        function toggleSimulateLive() {
+            isLive = !isLive;
+            const liveBadge = document.getElementById('liveBadge');
+            const liveBtn = document.getElementById('liveBtn');
+            if (isLive) {
+                liveBadge.style.display = "block";
+                liveBtn.innerText = "⏹️ หยุดจำลองออนแอร์";
+                liveBtn.style.backgroundColor = "#334155";
+            } else {
+                liveBadge.style.display = "none";
+                liveBtn.innerText = "🔴 จำลองสถานะออนแอร์";
+                liveBtn.style.backgroundColor = "#ef4444";
+            }
+        }
+    </script>
 </body>
 </html>
