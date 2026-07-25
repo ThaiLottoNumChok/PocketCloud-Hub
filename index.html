@@ -293,15 +293,17 @@
             </div>
         </div>
 
-        <!-- หมวดที่ 8: Streamer Control Center (ใหม่ล่าสุดสำหรับยุคสตรีมเมอร์) -->
+        <!-- หมวดที่ 8: Streamer Control Center -->
         <div class="card" style="border: 1px solid #a855f755; background-color: #0f172a;">
             <h2 style="color: #c084fc; border-left: 4px solid #c084fc;">🎙️ 8. Streamer Control Center</h2>
             <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 12px;">
                 // ระบบมอนิเตอร์และควบคุมสคริปต์ไลฟ์สดส่วนตัวบนมือถือ
             </p>
             
+            <!-- ปุ่มกดไปหน้าจอแยก (ใหม่) -->
+            <a href="stream.html" class="btn" style="background-color: #c084fc; font-weight: bold; color: #0f172a; width: 100%; text-align: center; margin-bottom: 15px; display: block;">📺 เปิดหน้าจอแยก Streamer & Multi-Platform Hub</a>
+
             <div class="streamer-box">
-                <!-- สถานะสตรีมปัจจุบัน -->
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-size: 0.85rem; color: #94a3b8;">สถานะสตรีม:</span>
                     <span id="streamStatusBadge" class="status-badge">🟢 กำลังจัดรายการปกติ</span>
@@ -312,7 +314,6 @@
                     <button onclick="setStatus('🔴 เตรียมปิดไลฟ์', '#ef4444')" class="btn" style="flex:1; font-size:0.75rem; padding:6px;">ปิดไลฟ์</button>
                 </div>
 
-                <!-- นาฬิกาจับเวลาถอยหลังไลฟ์ -->
                 <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 4px;">⏱️ จับเวลาช่วงไลฟ์ / เบรก:</p>
                 <div id="timerDisplay" class="timer-display">00:00</div>
                 <div style="display: flex; gap: 5px; margin-bottom: 15px;">
@@ -321,7 +322,6 @@
                     <button onclick="stopTimer()" class="btn" style="flex:1; font-size:0.75rem; background:#b91c1c;">รีเซ็ต</button>
                 </div>
 
-                <!-- สคริปต์โน้ตสำหรับพูดคุย -->
                 <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 4px;">📝 บอร์ดสคริปต์พูดคุย (Live Notes):</p>
                 <textarea id="streamScript" class="streamer-textarea" placeholder="พิมพ์หัวข้อหรือสคริปต์ที่จะพูดในไลฟ์สดตรงนี้ บันทึกอัตโนมัติ..."></textarea>
                 <button onclick="saveScript()" class="btn" style="background-color: #a855f7; width: 100%; font-weight: bold; color: #fff;">💾 บันทึกสคริปต์เก็บไว้ในเครื่อง</button>
@@ -335,10 +335,8 @@
     </footer>
 
     <script>
-        // ฟังก์ชันคลังภาพ
         const imageInput = document.getElementById('imageInput');
         const galleryContainer = document.getElementById('galleryContainer');
-
         imageInput.addEventListener('change', function(event) {
             const files = event.target.files;
             for (let i = 0; i < files.length; i++) {
@@ -354,10 +352,8 @@
             }
         });
 
-        // ตัวแปรเก็บพิกัดปัจจุบัน
         let currentLat = null;
         let currentLon = null;
-
         const gpsStatus = document.getElementById('gpsStatus');
         const mapLink = document.getElementById('mapLink');
         const savedLocationText = document.getElementById('savedLocationText');
@@ -372,33 +368,16 @@
                 gpsStatus.innerText = "❌ เบราว์เซอร์นี้ไม่รองรับ GPS";
             }
         }
-
         function showPosition(position) {
             currentLat = position.coords.latitude;
             currentLon = position.coords.longitude;
-            
             gpsStatus.innerHTML = `✅ พิกัดของคุณ:<br>Lat: ${currentLat.toFixed(5)}, Lon: ${currentLon.toFixed(5)}`;
             mapLink.href = `https://www.google.com/maps?q=${currentLat},${currentLon}`;
             mapLink.style.display = "block";
         }
-
         function showError(error) {
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    gpsStatus.innerText = "❌ คุณปฏิเสธการเข้าถึงตำแหน่ง GPS";
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    gpsStatus.innerText = "❌ ไม่สามารถหาตำแหน่งพิกัดได้";
-                    break;
-                case error.TIMEOUT:
-                    gpsStatus.innerText = "❌ หมดเวลารอรับสัญญาณพิกัด";
-                    break;
-                default:
-                    gpsStatus.innerText = "❌ เกิดข้อผิดพลาดที่ไม่รู้สาเหตุ";
-                    break;
-            }
+            gpsStatus.innerText = "❌ ไม่สามารถดึงพิกัด GPS ได้";
         }
-
         function saveLocation() {
             if (!currentLat || !currentLon) {
                 alert('กรุณากด "เช็คพิกัด GPS ปัจจุบัน" ก่อนบันทึกครับ!');
@@ -409,41 +388,22 @@
             savedLocationText.innerHTML = `📌 บันทึกจุดล่าสุดสำเร็จ: Lat: ${currentLat.toFixed(5)}, Lon: ${currentLon.toFixed(5)}`;
             alert('บันทึกพิกัดจุดนี้เรียบร้อยแล้ว!');
         }
-
         function sendSOS() {
-            if (!navigator.geolocation) {
-                alert('เบราว์เซอร์ไม่รองรับ GPS ไม่สามารถส่งพิกัด SOS ได้');
-                return;
-            }
-            
-            gpsStatus.innerText = "🚨 กำลังดึงพิกัดฉุกเฉินเพื่อขอความช่วยเหลือ...";
+            if (!navigator.geolocation) return;
             navigator.geolocation.getCurrentPosition(function(position) {
                 currentLat = position.coords.latitude;
                 currentLon = position.coords.longitude;
-                
-                gpsStatus.innerHTML = `✅ พิกัดของคุณ:<br>Lat: ${currentLat.toFixed(5)}, Lon: ${currentLon.toFixed(5)}`;
-                
                 let mapsUrl = `https://www.google.com/maps?q=${currentLat},${currentLon}`;
-                let message = `🚨 ขอความช่วยเหลือด่วน! เกิดเหตุฉุกเฉิน/ไม่ปลอดภัย พิกัดปัจจุบันของฉันคือ: ${mapsUrl} (Lat: ${currentLat.toFixed(5)}, Lon: ${currentLon.toFixed(5)})`;
-                
-                sosText.innerText = message;
+                sosText.innerText = `🚨 ขอความช่วยเหลือด่วน! พิกัด: ${mapsUrl}`;
                 sosResultBox.style.display = "block";
-                alert('สร้างข้อความ SOS สำเร็จ! กรุณากดปุ่ม "คัดลอกข้อความ" เพื่อส่งให้ตำรวจหรือคนสนิททาง LINE ได้เลยครับ');
-            }, function(error) {
-                alert('ไม่สามารถดึงพิกัดได้ กรุณาเปิดใช้งาน GPS ที่มือถือครับ');
-            }, { enableHighAccuracy: true });
-        }
-
-        function copySOS() {
-            let textToCopy = sosText.innerText;
-            navigator.clipboard.writeText(textToCopy).then(function() {
-                alert('คัดลอกข้อความ SOS เรียบร้อย! นำไปวางส่งใน LINE ได้เลย');
-            }, function(err) {
-                alert('คัดลอกไม่สำเร็จ ลองใช้วิธีลากคลุมข้อความแล้วคัดลอกด้วยตัวเองครับ');
+                alert('สร้างข้อความ SOS สำเร็จ!');
             });
         }
+        function copySOS() {
+            navigator.clipboard.writeText(sosText.innerText);
+            alert('คัดลอกข้อความแล้ว!');
+        }
 
-        // --- JavaScript สำหรับ Streamer Control Center ---
         function setStatus(text, color) {
             const badge = document.getElementById('streamStatusBadge');
             badge.innerText = text;
@@ -453,4 +413,32 @@
         let timerInterval = null;
         function startTimer(durationSeconds) {
             clearInterval(timerInterval);
-            let timer = durationS
+            let timer = durationSeconds;
+            const display = document.getElementById('timerDisplay');
+            timerInterval = setInterval(function () {
+                let minutes = parseInt(timer / 60, 10);
+                let seconds = parseInt(timer % 60, 10);
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+                display.innerText = minutes + ":" + seconds;
+                if (--timer < 0) {
+                    clearInterval(timerInterval);
+                    display.innerText = "หมดเวลา! ⏰";
+                }
+            }, 1000);
+        }
+        function stopTimer() {
+            clearInterval(timerInterval);
+            document.getElementById('timerDisplay').innerText = "00:00";
+        }
+        function saveScript() {
+            localStorage.setItem('streamer_script', document.getElementById('streamScript').value);
+            alert('💾 บันทึกสคริปต์เรียบร้อย!');
+        }
+        window.onload = function() {
+            const savedScript = localStorage.getItem('streamer_script');
+            if (savedScript) document.getElementById('streamScript').value = savedScript;
+        }
+    </script>
+</body>
+</html>
