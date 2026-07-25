@@ -24,39 +24,59 @@
     <div class="container">
         <div class="card">
             <h1>📈 Stock & Investment Hub</h1>
-            <p>// ระบบติดตามกระดานหุ้นและพอร์ตลงทุนสไตล์ตลาดทุนสากล</p>
+            <p>// ระบบติดตามกระดานหุ้นและพอร์ตลงทุน (อัปเดตราคาอัตโนมัติ)</p>
             
-            <h3 style="color: #34d399; font-size: 1rem; margin-bottom: 5px;">💼 พอร์ตจำลอง & หุ้นน่าสนใจ</h3>
+            <h3 style="color: #34d399; font-size: 1rem; margin-bottom: 5px;">💼 พอร์ตจำลอง & สินทรัพย์</h3>
             <table class="stock-table">
                 <tr>
                     <th>หุ้น / สินทรัพย์</th>
                     <th>ราคาล่าสุด</th>
-                    <th>เปลี่ยนแปลง</th>
+                    <th>สถานะ / การเปลี่ยนแปลง</th>
                 </tr>
                 <tr>
-                    <td>PTT (ปตท.)</td>
+                    <td>PTT (ปตท.) [จำลอง]</td>
                     <td>34.50</td>
                     <td class="text-green">+0.75 (+2.2%)</td>
                 </tr>
                 <tr>
-                    <td>AOT (ท่าอากาศยานไทย)</td>
+                    <td>AOT (ท่าอากาศยานไทย) [จำลอง]</td>
                     <td>62.00</td>
                     <td class="text-red">-0.50 (-0.8%)</td>
                 </tr>
                 <tr>
-                    <td>DELTA (เดลต้า)</td>
+                    <td>DELTA (เดลต้า) [จำลอง]</td>
                     <td>98.00</td>
                     <td class="text-green">+3.00 (+3.1%)</td>
                 </tr>
                 <tr>
-                    <td>BTC / USD (Crypto)</td>
-                    <td>$68,400</td>
-                    <td class="text-green">+1,200 (+1.8%)</td>
+                    <td>BTC / USD (Crypto Real-time)</td>
+                    <td id="btcPrice" style="color: #38bdf8; font-weight: bold;">กำลังโหลด...</td>
+                    <td class="text-green">Live API</td>
                 </tr>
             </table>
             
             <a href="index.html" class="btn-back">⬅️ กลับหน้าหลัก PocketCloud Hub</a>
         </div>
     </div>
+
+    <script>
+        // ฟังก์ชันดึงราคา Bitcoin แบบเรียลไทม์จาก CoinGecko API ฟรี
+        async function fetchCryptoPrice() {
+            try {
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+                const data = await response.json();
+                const price = data.bitcoin.usd;
+                document.getElementById('btcPrice').innerText = '$' + price.toLocaleString();
+            } catch (error) {
+                document.getElementById('btcPrice').innerText = 'โหลดไม่สำเร็จ';
+            }
+        }
+
+        // โหลดทันทีเมื่อเปิดหน้าเว็บ
+        fetchCryptoPrice();
+
+        // อัปเดตทุกๆ 60 วินาที
+        setInterval(fetchCryptoPrice, 60000);
+    </script>
 </body>
 </html>
