@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Streamer Hub - จำลองระบบไลฟ์สดในเครื่องเดียว</title>
+    <title>Streamer Guide & Hub - คู่มือและศูนย์รวมการไลฟ์สด</title>
     <style>
         * {
             box-sizing: border-box;
@@ -14,7 +14,7 @@
         body {
             background-color: #0f172a;
             color: #f8fafc;
-            line-height: 1.5;
+            line-height: 1.6;
             padding: 20px;
         }
         header {
@@ -51,81 +51,46 @@
             border-left: 4px solid #c084fc;
             padding-left: 10px;
         }
-        .btn {
-            background-color: #334155;
-            color: #f1f5f9;
-            padding: 10px 15px;
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .btn-platform {
+            color: #fff;
+            padding: 12px;
             border-radius: 8px;
             text-decoration: none;
             font-size: 0.9rem;
-            border: none;
-            cursor: pointer;
-            display: inline-block;
             font-weight: bold;
             text-align: center;
+            display: block;
+            transition: opacity 0.2s;
         }
-        .btn:hover {
-            opacity: 0.9;
+        .btn-platform:hover {
+            opacity: 0.85;
         }
-        
-        /* ส่วนจอจำลอง MCR & กล้อง */
-        .mcr-screen {
-            background-color: #000;
-            border: 2px solid #38bdf8;
-            height: 220px;
-            border-radius: 8px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #webcamVideo {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: none;
-        }
-        .mcr-placeholder {
-            color: #38bdf8;
-            font-size: 0.9rem;
-            text-align: center;
-            padding: 10px;
-        }
-        .live-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background-color: #ef4444;
-            color: white;
-            padding: 3px 10px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            border-radius: 4px;
-            display: none;
-        }
-
-        /* จำลองกล่องแชต */
-        .chat-box {
+        .guide-box {
             background-color: #0f172a;
             border: 1px solid #334155;
-            height: 130px;
+            padding: 15px;
             border-radius: 8px;
-            padding: 10px;
-            overflow-y: auto;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+        .guide-box ol {
+            margin-left: 20px;
+            margin-top: 8px;
             display: flex;
             flex-direction: column;
             gap: 6px;
-            margin-bottom: 10px;
         }
-        .chat-msg {
-            background: #1e293b;
-            padding: 6px 10px;
-            border-radius: 6px;
-            border-left: 3px solid #c084fc;
+        .guide-box li {
+            color: #94a3b8;
         }
-
+        .guide-box strong {
+            color: #38bdf8;
+        }
         .back-btn {
             background-color: #475569;
             color: #fff;
@@ -138,121 +103,59 @@
             font-size: 0.9rem;
             font-weight: bold;
         }
+        .back-btn:hover {
+            background-color: #64748b;
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>🎙️ Solo Streamer Simulator</h1>
-        <p>ระบบจำลองและทดสอบการไลฟ์สดแบบครบวงจรในมือถือเครื่องเดียว</p>
+        <h1>📖 Streamer Guide & Hub</h1>
+        <p>คู่มือเริ่มต้นและศูนย์รวมลิงก์แพลตฟอร์มไลฟ์สดสำหรับทุกคน</p>
     </header>
 
     <div class="container">
 
-        <!-- หมวด: จอภาพจำลอง MCR & กล้องหน้า -->
+        <!-- หมวด: คำแนะนำการใช้งานสำหรับคนทั่วไป -->
         <div class="card" style="border-color: #38bdf855;">
-            <h2>📺 หน้าจอมอนิเตอร์กล้อง (Camera & MCR Preview)</h2>
-            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 12px;">ทดสอบเปิดกล้องหน้าตัวเองเช็กความพร้อมบนมือถือ</p>
-            
-            <div class="mcr-screen" id="mcrScreen">
-                <div class="live-badge" id="liveBadge">🔴 ON AIR</div>
-                <div class="mcr-placeholder" id="mcrText">
-                    📴 กล้องยังไม่เปิด<br>กดปุ่มด้านล่างเพื่อเปิดกล้องเช็กมุมมอง
-                </div>
-                <video id="webcamVideo" autoplay playsinline></video>
-            </div>
-
-            <div style="display: flex; gap: 8px; margin-top: 12px;">
-                <button onclick="toggleCamera()" class="btn" style="flex: 1; background-color: #0ea5e9;" id="camBtn">📷 เปิดกล้องหน้า</button>
-                <button onclick="toggleSimulateLive()" class="btn" style="flex: 1; background-color: #ef4444;" id="liveBtn">🔴 จำลองสถานะออนแอร์</button>
+            <h2>💡 คำแนะนำ: วิธีไลฟ์สดให้ง่ายที่สุด</h2>
+            <div class="guide-box">
+                <p>สำหรับบุคคลทั่วไปที่ต้องการไลฟ์สดออกช่องตัวเอง หรืออยากกระจายสัญญาณไปหลายแพลตฟอร์มพร้อมกัน แนะนำให้ใช้งานผ่านเครื่องมือเหล่านี้ครับ:</p>
+                <ol>
+                    <li><strong>ใช้แอปมือถือช่วยยิงสัญญาณ:</strong> โหลดแอปเช่น <em>Prism Live Studio</em> หรือ <em>Streamlabs</em> มาไว้ในมือถือ</li>
+                    <li><strong>ตั้งค่าช่องส่วนตัว:</strong> นำ <em>Stream Key</em> จากช่อง YouTube หรือ Facebook ของตัวเองไปใส่ในแอป</li>
+                    <li><strong>ต่างคนต่างไลฟ์:</strong> ทุกคนสามารถล็อกอินบัญชีส่วนตัวและกดไลฟ์แยกย้ายกันได้อย่างอิสระผ่านแอปเหล่านี้ครับ</li>
+                </ol>
             </div>
         </div>
 
-        <!-- หมวด: จำลองคอมเมนต์ผู้ชม (Mock Chat) -->
-        <div class="card" style="border-color: #c084fc55;">
-            <h2>💬 ระบบจำลองแชตสด (Live Chat Simulator)</h2>
-            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">กดจำลองคอมเมนต์เพื่อทดสอบการอ่านแชตระหว่างไลฟ์</p>
+        <!-- หมวด: ทางออกสู่แพลตฟอร์ม -->
+        <div class="card">
+            <h2>🚀 ทางด่วนสู่หลังบ้านแต่ละแพลตฟอร์ม</h2>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 15px;">คลิกเพื่อเปิดหน้าจัดการระบบไลฟ์สดของแต่ละค่ายได้ทันที</p>
             
-            <div class="chat-box" id="chatContainer">
-                <div class="chat-msg" style="color: #94a3b8;">✨ ระบบแชตจำลองพร้อมใช้งาน...</div>
+            <div class="platform-grid">
+                <a href="https://studio.youtube.com" target="_blank" class="btn-platform" style="background-color: #dc2626;">🔴 YouTube Studio</a>
+                <a href="https://www.facebook.com/live/create" target="_blank" class="btn-platform" style="background-color: #2563eb;">🔵 Facebook Live</a>
+                <a href="https://dashboard.twitch.tv" target="_blank" class="btn-platform" style="background-color: #7c3aed;">🟣 Twitch Dashboard</a>
+                <a href="https://www.tiktok.com/live/studio" target="_blank" class="btn-platform" style="background-color: #0f172a; border: 1px solid #38bdf8;">⚫ TikTok Live Studio</a>
             </div>
+        </div>
 
-            <button onclick="addSimulatedChat()" class="btn" style="background-color: #c084fc; width: 100%; color: #0f172a;">➕ จำลองมีคนพิมพ์คอมเมนต์เข้ามา</button>
+        <!-- หมวด: แนะนำเว็บตัวกลางสตรีมมิ่ง -->
+        <div class="card" style="border-color: #c084fc55;">
+            <h2>🌐 เว็บตัวกลางกระจายสัญญาณ (Multi-stream)</h2>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">หากต้องการส่งภาพทีเดียวไปทุกแพลตฟอร์ม แนะนำให้ใช้งานผ่านเว็บตัวกลางเหล่านี้:</p>
+            <div style="display: flex; gap: 10px;">
+                <a href="https://restream.io" target="_blank" class="btn-platform" style="flex: 1; background-color: #f97316;">🟠 Restream.io</a>
+                <a href="https://aircast.app" target="_blank" class="btn-platform" style="flex: 1; background-color: #059669;">🟢 Aircast</a>
+            </div>
         </div>
 
         <a href="index.html" class="back-btn">🏠 กลับสู่หน้าหลัก PocketCloud Hub</a>
 
     </div>
 
-    <script>
-        // ควบคุมกล้องหน้ามือถือ
-        let videoStream = null;
-        const videoElement = document.getElementById('webcamVideo');
-        const mcrText = document.getElementById('mcrText');
-        const camBtn = document.getElementById('camBtn');
-
-        async function toggleCamera() {
-            if (!videoStream) {
-                try {
-                    videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
-                    videoElement.srcObject = videoStream;
-                    videoElement.style.display = "block";
-                    mcrText.style.display = "none";
-                    camBtn.innerText = "❌ ปิดกล้อง";
-                    camBtn.style.backgroundColor = "#b91c1c";
-                } catch (err) {
-                    alert('ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตสิทธิ์การเข้าถึงกล้องในเบราว์เซอร์ครับ');
-                }
-            } else {
-                videoStream.getTracks().forEach(track => track.stop());
-                videoStream = null;
-                videoElement.style.display = "none";
-                mcrText.style.display = "block";
-                camBtn.innerText = "📷 เปิดกล้องหน้า";
-                camBtn.style.backgroundColor = "#0ea5e9";
-            }
-        }
-
-        // ควบคุมจำลองออนแอร์
-        let isLive = false;
-        function toggleSimulateLive() {
-            isLive = !isLive;
-            const liveBadge = document.getElementById('liveBadge');
-            const liveBtn = document.getElementById('liveBtn');
-            if (isLive) {
-                liveBadge.style.display = "block";
-                liveBtn.innerText = "⏹️ หยุดจำลองออนแอร์";
-                liveBtn.style.backgroundColor = "#334155";
-            } else {
-                liveBadge.style.display = "none";
-                liveBtn.innerText = "🔴 จำลองสถานะออนแอร์";
-                liveBtn.style.backgroundColor = "#ef4444";
-            }
-        }
-
-        // จำลองแชตสุ่ม
-        const sampleNames = ["พี่เจมส์แฟนคลับ", "น้องก้องสายฮา", "เซียนหวยมือทอง", "ผู้ชมเงียบๆ", "สายซิ่งวิ่งส่งของ", "AI สุดหล่อ"];
-        const sampleComments = [
-            "ภาพชัดเสียงดีมากครับ! 👍",
-            "วันนี้มีทีเด็ดอะไรไหมครับเนี่ย 😆",
-            "สวัสดีรอบห้องครับผม!",
-            "เสียงดังฟังชัดเจนครับพี่",
-            "5555 ฮาอ่ะ",
-            "กดไลก์ให้แล้วนะคร้าบบบ"
-        ];
-
-        function addSimulatedChat() {
-            const chatContainer = document.getElementById('chatContainer');
-            const randomName = sampleNames[Math.floor(Math.random() * sampleNames.length)];
-            const randomComment = sampleComments[Math.floor(Math.random() * sampleComments.length)];
-            
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'chat-msg';
-            msgDiv.innerHTML = `<strong style="color: #38bdf8;">${randomName}:</strong> ${randomComment}`;
-            
-            chatContainer.appendChild(msgDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight; // เลื่อนลงล่างสุดอัตโนมัติ
-        }
-    </script>
 </body>
 </html>
