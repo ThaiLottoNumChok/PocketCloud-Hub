@@ -78,6 +78,7 @@
             margin-bottom: 20px;
             border-bottom: 1px solid #334155;
             padding-bottom: 10px;
+            overflow-x: auto;
         }
         .tab-btn {
             background-color: #0f172a;
@@ -88,6 +89,7 @@
             cursor: pointer;
             font-size: 0.85rem;
             font-weight: bold;
+            white-space: nowrap;
             transition: all 0.2s;
         }
         .tab-btn.active {
@@ -125,7 +127,7 @@
             width: 25%;
         }
 
-        /* ตารางไฟล์และปุ่ม */
+        /* ปุ่มต่างๆ */
         .btn {
             background-color: #0ea5e9;
             color: #fff;
@@ -142,14 +144,22 @@
         }
         .btn-danger {
             background-color: #ef4444;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            margin-top: 6px;
+            border-radius: 4px;
+            border: none;
+            color: #fff;
+            cursor: pointer;
         }
         .btn-danger:hover {
             background-color: #dc2626;
         }
 
+        /* ตารางไฟล์ */
         .grid-files {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             gap: 15px;
             margin-top: 15px;
         }
@@ -157,44 +167,37 @@
             background-color: #0f172a;
             border: 1px solid #334155;
             border-radius: 8px;
-            padding: 15px 10px;
+            padding: 12px 8px;
             text-align: center;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
         }
-        .file-item:hover {
-            border-color: #38bdf8;
-            background-color: #172554;
-            transform: translateY(-2px);
-        }
-        .file-icon {
-            font-size: 2.2rem;
-            margin-bottom: 8px;
-        }
-        .file-name {
-            font-size: 0.85rem;
-            color: #cbd5e1;
-            word-break: break-all;
-        }
-        .delete-badge {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: #ef4444;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
+        .file-icon-box {
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 0;
-            transition: opacity 0.2s;
+            font-size: 2rem;
+            margin-bottom: 8px;
+            background: #1e293b;
+            border-radius: 6px;
+            overflow: hidden;
         }
-        .file-item:hover .delete-badge {
-            opacity: 1;
+        .file-icon-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .file-name {
+            font-size: 0.8rem;
+            color: #cbd5e1;
+            word-break: break-all;
+            margin-bottom: 5px;
+            max-height: 2.4em;
+            overflow: hidden;
         }
 
         /* ช่องบันทึกข้อความ (Vault Notes) */
@@ -210,6 +213,24 @@
             resize: vertical;
             margin-bottom: 12px;
             font-family: monospace;
+        }
+
+        /* Modal สำหรับดูรูปขยายใหญ่ */
+        #imageModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        #imageModal img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 8px;
+            border: 2px solid #334155;
         }
     </style>
 </head>
@@ -247,12 +268,12 @@
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
-                    <label for="fileUploadInput" class="btn" style="cursor: pointer;">➕ อัปโหลดไฟล์เข้าฮาร์ดดิสก์</label>
-                    <input type="file" id="fileUploadInput" style="display: none;" multiple onchange="handleFileUpload(event)">
+                <div style="margin-bottom: 15px;">
+                    <label for="fileUploadInput" class="btn" style="cursor: pointer; display: inline-block;">➕ อัปโหลดไฟล์ / รูปภาพ</label>
+                    <input type="file" id="fileUploadInput" style="display: none;" multiple accept="image/*, .txt, .pdf" onchange="handleFileUpload(event)">
                 </div>
 
-                <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">🗂️ รายการไฟล์ในระบบ (คลิกที่ปุ่มแดงมุมขวาของไฟล์เพื่อลบ):</p>
+                <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">🗂️ รายการไฟล์ในระบบ (มีปุ่มลบใต้ชื่อไฟล์):</p>
                 <div class="grid-files" id="fileGridContainer">
                     <!-- โหลดไฟล์ผ่าน Script -->
                 </div>
@@ -264,20 +285,20 @@
                     // คลังเก็บลิงก์มีเดีย ภาพแบนเนอร์ และองค์ประกอบสำหรับใช้จัดรายการสตรีม
                 </p>
                 <div class="grid-files">
-                    <div class="file-item" onclick="window.open('https://www.youtube.com', '_blank')">
-                        <div class="file-icon">🎬</div>
+                    <div class="file-item" onclick="window.open('https://www.youtube.com', '_blank')" style="cursor: pointer;">
+                        <div class="file-icon-box">🎬</div>
                         <div class="file-name">YouTube Studio</div>
                     </div>
-                    <div class="file-item" onclick="window.open('https://www.bing.com/create', '_blank')">
-                        <div class="file-icon">✨</div>
+                    <div class="file-item" onclick="window.open('https://www.bing.com/create', '_blank')" style="cursor: pointer;">
+                        <div class="file-icon-box">✨</div>
                         <div class="file-name">AI Image Gen</div>
                     </div>
-                    <div class="file-item" onclick="alert('🎵 เปิดคลิปเสียงซาวด์เอฟเฟกต์ (พร้อมใช้งาน)')">
-                        <div class="file-icon">🔊</div>
+                    <div class="file-item" onclick="alert('🎵 เปิดคลิปเสียงซาวด์เอฟเฟกต์ (พร้อมใช้งาน)')" style="cursor: pointer;">
+                        <div class="file-icon-box">🔊</div>
                         <div class="file-name">Sound_FX.mp3</div>
                     </div>
-                    <div class="file-item" onclick="alert('🖼️ โหลดแบนเนอร์สตรีมมิ่งสำเร็จ')">
-                        <div class="file-icon">🖼️</div>
+                    <div class="file-item" onclick="alert('🖼️ โหลดแบนเนอร์สตรีมมิ่งสำเร็จ')" style="cursor: pointer;">
+                        <div class="file-icon-box">🖼️</div>
                         <div class="file-name">Stream_Banner.png</div>
                     </div>
                 </div>
@@ -293,6 +314,11 @@
             </div>
 
         </div>
+    </div>
+
+    <!-- Modal สำหรับดูรูปภาพขยาย -->
+    <div id="imageModal" onclick="this.style.display='none'">
+        <img id="modalImg" src="" alt="Expanded View">
     </div>
 
     <script>
@@ -317,53 +343,81 @@
             alert('✅ บันทึกข้อมูลลงฮาร์ดดิสก์ลับเรียบร้อยแล้ว!');
         }
 
+        // ระบบอัปโหลดไฟล์พร้อมแปลงเป็น Base64 เก็บรูปภาพและข้อมูล
         function handleFileUpload(event) {
             const files = event.target.files;
             let userFiles = JSON.parse(localStorage.getItem('pocketcloud_user_files') || '[]');
 
+            let processedCount = 0;
             for (let i = 0; i < files.length; i++) {
-                userFiles.push({ name: files[i].name });
+                const file = files[i];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    userFiles.push({
+                        name: file.name,
+                        data: e.target.result, // เก็บข้อมูลไฟล์ (รวมถึงรูปภาพ)
+                        isImage: file.type.startsWith('image/')
+                    });
+                    processedCount++;
+                    
+                    if (processedCount === files.length) {
+                        localStorage.setItem('pocketcloud_user_files', JSON.stringify(userFiles));
+                        loadUserFiles();
+                        alert('📁 อัปโหลดไฟล์เข้าไดรฟ์จำลองสำเร็จ!');
+                    }
+                };
+                reader.readAsDataURL(file);
             }
-
-            localStorage.setItem('pocketcloud_user_files', JSON.stringify(userFiles));
-            loadUserFiles();
-            alert('📁 อัปโหลดไฟล์เข้าไดรฟ์จำลองสำเร็จ!');
         }
 
         function loadUserFiles() {
             const container = document.getElementById('fileGridContainer');
             let html = `
-                <div class="file-item" onclick="alert('📂 โฟลเดอร์ระบบ: System Core')">
-                    <div class="file-icon">📁</div>
+                <div class="file-item">
+                    <div class="file-icon-box">📁</div>
                     <div class="file-name">System_Core</div>
+                    <span style="font-size:0.75rem; color:#64748b;">ระบบ</span>
                 </div>
-                <div class="file-item" onclick="alert('📜 ไฟล์ตั้งค่า: config.json')">
-                    <div class="file-icon">📜</div>
+                <div class="file-item">
+                    <div class="file-icon-box">📜</div>
                     <div class="file-name">config.json</div>
+                    <span style="font-size:0.75rem; color:#64748b;">ระบบ</span>
                 </div>
             `;
 
             const userFiles = JSON.parse(localStorage.getItem('pocketcloud_user_files') || '[]');
             userFiles.forEach((f, index) => {
+                let iconContent = '📄';
+                if (f.isImage && f.data) {
+                    iconContent = `<img src="${f.data}" alt="${f.name}">`;
+                }
+
                 html += `
                     <div class="file-item">
-                        <div class="delete-badge" onclick="deleteUserFile(event, ${index})" title="ลบไฟล์นี้">✕</div>
-                        <div class="file-icon" onclick="alert('📄 เปิดไฟล์: ${f.name}')">📄</div>
-                        <div class="file-name" onclick="alert('📄 เปิดไฟล์: ${f.name}')">${f.name}</div>
+                        <div class="file-icon-box" ${f.isImage ? `onclick="openImage('${f.data}')"` : `onclick="alert('📄 ไฟล์: ${f.name}')"`} style="cursor: pointer;">
+                            ${iconContent}
+                        </div>
+                        <div class="file-name" title="${f.name}">${f.name}</div>
+                        <button class="btn-danger" onclick="deleteUserFile(${index})">🗑️ ลบ</button>
                     </div>
                 `;
             });
 
             container.innerHTML = html;
-            document.getElementById('storageUsed').innerText = `ใช้ไป ${ (12.5 + (userFiles.length * 1.2)).toFixed(1) } MB จาก 1 GB`;
+            document.getElementById('storageUsed').innerText = `ใช้ไป ${ (12.5 + (userFiles.length * 1.5)).toFixed(1) } MB จาก 1 GB`;
         }
 
-        function deleteUserFile(event, index) {
-            event.stopPropagation(); // ป้องกันไม่ให้เปิดไฟล์ตอนกดปุ่มลบ
+        function openImage(dataUrl) {
+            document.getElementById('modalImg').src = dataUrl;
+            document.getElementById('imageModal').style.display = 'flex';
+        }
+
+        function deleteUserFile(index) {
             let userFiles = JSON.parse(localStorage.getItem('pocketcloud_user_files') || '[]');
             
             if (confirm('คุณต้องการลบไฟล์นี้ออกจากไดรฟ์ใช่หรือไม่?')) {
-                userFiles.splice(index, 1); // ตัดไฟล์ออกจากรายการ
+                userFiles.splice(index, 1);
                 localStorage.setItem('pocketcloud_user_files', JSON.stringify(userFiles));
                 loadUserFiles();
             }
