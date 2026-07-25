@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Virtual Hard Disk - PocketCloud Hub</title>
+    <title>Virtual Hard Disk Hub - PocketCloud</title>
     <style>
         * {
             box-sizing: border-box;
@@ -17,7 +17,7 @@
             padding: 20px;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
         }
         .window-header {
@@ -53,8 +53,57 @@
             border-bottom-left-radius: 12px;
             border-bottom-right-radius: 12px;
             padding: 20px;
-            min-height: 400px;
+            min-height: 500px;
         }
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 15px;
+            background-color: #334155;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .back-btn:hover {
+            background-color: #475569;
+        }
+
+        /* แถบเมนูย่อย (Tabs) */
+        .tab-menu {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+        }
+        .tab-btn {
+            background-color: #0f172a;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background-color: #0ea5e9;
+            color: #fff;
+            border-color: #0ea5e9;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ข้อมูลไดรฟ์ */
         .drive-info {
             background-color: #0f172a;
             padding: 15px;
@@ -73,13 +122,29 @@
         .progress-bar-fill {
             background-color: #38bdf8;
             height: 100%;
-            width: 45%;
+            width: 25%;
         }
-        
+
+        /* ตารางไฟล์และปุ่ม */
+        .btn {
+            background-color: #0ea5e9;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background-color: #0284c7;
+        }
         .grid-files {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
             gap: 15px;
+            margin-top: 15px;
         }
         .file-item {
             background-color: #0f172a;
@@ -104,28 +169,29 @@
             color: #cbd5e1;
             word-break: break-all;
         }
-        .back-btn {
-            display: inline-block;
-            margin-bottom: 15px;
-            background-color: #334155;
-            color: #fff;
-            padding: 8px 15px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: bold;
-        }
-        .back-btn:hover {
-            background-color: #475569;
+
+        /* ช่องบันทึกข้อความ (Vault Notes) */
+        .vault-textarea {
+            width: 100%;
+            height: 250px;
+            background-color: #0f172a;
+            color: #f8fafc;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.95rem;
+            resize: vertical;
+            margin-bottom: 12px;
+            font-family: monospace;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- จำลองแถบหัวหน้าต่างโปรแกรม -->
+        <!-- แถบจำลองหน้าต่างโปรแกรม -->
         <div class="window-header">
-            <div class="window-title">📁 Local Disk (C:) - PocketCloud Virtual Storage</div>
+            <div class="window-title">💽 Virtual Hard Disk Hub - PocketCloud Storage</div>
             <div class="window-controls">
                 <span class="btn-minimize"></span>
                 <span class="btn-maximize"></span>
@@ -136,45 +202,150 @@
         <div class="explorer-body">
             <a href="index.html" class="back-btn">⬅️ กลับสู่หน้าหลัก PocketCloud Hub</a>
 
-            <!-- สถานะความจุฮาร์ดดิสก์ -->
-            <div class="drive-info">
-                <p style="font-size: 0.9rem; color: #94a3b8;">💾 Local Disk (C:) พื้นที่เก็บข้อมูลระบบส่วนตัว</p>
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 5px; color: #cbd5e1;">
-                    <span>ใช้ไป 45.2 GB จาก 500 GB</span>
-                    <span style="color: #38bdf8;">ว่าง 454.8 GB</span>
+            <!-- แถบเมนูเลือกฟังก์ชัน (Tabs) -->
+            <div class="tab-menu">
+                <button class="tab-btn active" onclick="switchTab(event, 'tab-disk')">📁 ไดรฟ์จำลอง & อัปโหลด</button>
+                <button class="tab-btn" onclick="switchTab(event, 'tab-assets')">🎬 คลัง Asset สตรีมเมอร์</button>
+                <button class="tab-btn" onclick="switchTab(event, 'tab-vault')">📝 สมุดบันทึกไฟล์ลับ (Vault)</button>
+            </div>
+
+            <!-- TAB 1: ไดรฟ์จำลองและอัปโหลดไฟล์ -->
+            <div id="tab-disk" class="tab-content active">
+                <div class="drive-info">
+                    <p style="font-size: 0.9rem; color: #94a3b8;">💾 Local Disk (C:) พื้นที่จัดเก็บข้อมูลจำลองส่วนตัว</p>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 5px; color: #cbd5e1;">
+                        <span id="storageUsed">ใช้ไป 12.5 MB จาก 1 GB</span>
+                        <span style="color: #38bdf8;">ว่างเพียบ</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill"></div>
+                    </div>
                 </div>
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill"></div>
+
+                <div style="margin-bottom: 15px;">
+                    <label for="fileUploadInput" class="btn" style="cursor: pointer; display: inline-block;">➕ อัปโหลดไฟล์เข้าฮาร์ดดิสก์</label>
+                    <input type="file" id="fileUploadInput" style="display: none;" multiple onchange="handleFileUpload(event)">
+                </div>
+
+                <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">🗂️ รายการไฟล์ในระบบ:</p>
+                <div class="grid-files" id="fileGridContainer">
+                    <div class="file-item" onclick="alert('📂 โฟลเดอร์ระบบ: System Core')">
+                        <div class="file-icon">📁</div>
+                        <div class="file-name">System_Core</div>
+                    </div>
+                    <div class="file-item" onclick="alert('📜 ไฟล์ตั้งค่า: config.json')">
+                        <div class="file-icon">📜</div>
+                        <div class="file-name">config.json</div>
+                    </div>
                 </div>
             </div>
 
-            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 12px;">🗂️ โฟลเดอร์และไฟล์จำลองในระบบ:</p>
-
-            <!-- รายการจำลองโฟลเดอร์/ไฟล์ -->
-            <div class="grid-files">
-                <div class="file-item" onclick="alert('📂 เปิดโฟลเดอร์: System_Scripts (สถานะ: สมบูรณ์)')">
-                    <div class="file-icon">📁</div>
-                    <div class="file-name">System_Scripts</div>
-                </div>
-                <div class="file-item" onclick="alert('📂 เปิดโฟลเดอร์: Stream_Assets (สถานะ: พร้อมใช้งาน)')">
-                    <div class="file-icon">📁</div>
-                    <div class="file-name">Stream_Assets</div>
-                </div>
-                <div class="file-item" onclick="alert('📜 เปิดไฟล์: config.json (สถานะ: ปกติ)')">
-                    <div class="file-icon">📜</div>
-                    <div class="file-name">config.json</div>
-                </div>
-                <div class="file-item" onclick="alert('🖼️ เปิดไฟล์ภาพ: banner.png')">
-                    <div class="file-icon">🖼️</div>
-                    <div class="file-name">banner.png</div>
-                </div>
-                <div class="file-item" onclick="alert('⚡ ไฟล์ระบบลับ: secret_code.html')">
-                    <div class="file-icon">⚙️</div>
-                    <div class="file-name">secret.html</div>
+            <!-- TAB 2: คลัง Asset สตรีมเมอร์ -->
+            <div id="tab-assets" class="tab-content">
+                <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 15px;">
+                    // คลังเก็บลิงก์มีเดีย ภาพแบนเนอร์ และองค์ประกอบสำหรับใช้จัดรายการสตรีม
+                </p>
+                <div class="grid-files">
+                    <div class="file-item" onclick="window.open('https://www.youtube.com', '_blank')">
+                        <div class="file-icon">🎬</div>
+                        <div class="file-name">YouTube Studio</div>
+                    </div>
+                    <div class="file-item" onclick="window.open('https://www.bing.com/create', '_blank')">
+                        <div class="file-icon">✨</div>
+                        <div class="file-name">AI Image Gen</div>
+                    </div>
+                    <div class="file-item" onclick="alert('🎵 เปิดคลิปเสียงซาวด์เอฟเฟกต์ (พร้อมใช้งาน)')">
+                        <div class="file-icon">🔊</div>
+                        <div class="file-name">Sound_FX.mp3</div>
+                    </div>
+                    <div class="file-item" onclick="alert('🖼️ โหลดแบนเนอร์สตรีมมิ่งสำเร็จ')">
+                        <div class="file-icon">🖼️</div>
+                        <div class="file-name">Stream_Banner.png</div>
+                    </div>
                 </div>
             </div>
+
+            <!-- TAB 3: สมุดบันทึกไฟล์ลับ (Vault) -->
+            <div id="tab-vault" class="tab-content">
+                <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">
+                    📝 ซีเคร็ตนอยด์ / สมุดบันทึกส่วนตัว (บันทึกอัตโนมัติลงในเบราว์เซอร์):
+                </p>
+                <textarea id="vaultText" class="vault-textarea" placeholder="พิมพ์ข้อความลับ, สคริปต์รายการ, หรือลิงก์สำคัญตรงนี้..."></textarea>
+                <button onclick="saveVault()" class="btn" style="width: 100%; font-size: 1rem; padding: 10px;">💾 บันทึกข้อมูลลงฮาร์ดดิสก์ลับ</button>
+            </div>
+
         </div>
     </div>
 
+    <script>
+        // ระบบสลับแท็บ
+        function switchTab(evt, tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(c => c.classList.remove('active'));
+
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(b => b.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        // ระบบบันทึกสมุดบันทึก (Vault) ด้วย LocalStorage
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedNote = localStorage.getItem('pocketcloud_vault_note');
+            if (savedNote) {
+                document.getElementById('vaultText').value = savedNote;
+            }
+            loadUserFiles();
+        });
+
+        function saveVault() {
+            const text = document.getElementById('vaultText').value;
+            localStorage.setItem('pocketcloud_vault_note', text);
+            alert('✅ บันทึกข้อมูลลงฮาร์ดดิสก์ลับเรียบร้อยแล้ว!');
+        }
+
+        // ระบบจำลองอัปโหลดไฟล์เก็บในเครื่อง (LocalStorage)
+        function handleFileUpload(event) {
+            const files = event.target.files;
+            let userFiles = JSON.parse(localStorage.getItem('pocketcloud_user_files') || '[]');
+
+            for (let i = 0; i < files.length; i++) {
+                userFiles.push({ name: files[i].name, type: 'file' });
+            }
+
+            localStorage.setItem('pocketcloud_user_files', JSON.stringify(userFiles));
+            loadUserFiles();
+            alert('📁 อัปโหลดไฟล์เข้าไดรฟ์จำลองสำเร็จ!');
+        }
+
+        function loadUserFiles() {
+            const container = document.getElementById('fileGridContainer');
+            // คงค่าไฟล์ระบบเริ่มต้นไว้ แล้วเพิ่มไฟล์ที่อัปโหลดทีหลัง
+            let html = `
+                <div class="file-item" onclick="alert('📂 โฟลเดอร์ระบบ: System Core')">
+                    <div class="file-icon">📁</div>
+                    <div class="file-name">System_Core</div>
+                </div>
+                <div class="file-item" onclick="alert('📜 ไฟล์ตั้งค่า: config.json')">
+                    <div class="file-icon">📜</div>
+                    <div class="file-name">config.json</div>
+                </div>
+            `;
+
+            const userFiles = JSON.parse(localStorage.getItem('pocketcloud_user_files') || '[]');
+            userFiles.forEach(f => {
+                html += `
+                    <div class="file-item" onclick="alert('📄 เปิดไฟล์ผู้ใช้: ${f.name}')">
+                        <div class="file-icon">📄</div>
+                        <div class="file-name">${f.name}</div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            document.getElementById('storageUsed').innerText = `ใช้ไป ${ (12.5 + (userFiles.length * 1.2)).toFixed(1) } MB จาก 1 GB`;
+        }
+    </script>
 </body>
 </html>
