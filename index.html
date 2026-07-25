@@ -113,11 +113,11 @@
             background-color: #0f172a;
         }
 
-        /* สไตล์กล่อง GPS */
+        /* สไตล์กล่อง GPS & SOS */
         .gps-box {
             background-color: #0f172a;
             border: 1px solid #334155;
-            padding: 12px;
+            padding: 15px;
             border-radius: 8px;
             margin-top: 15px;
             font-size: 0.9rem;
@@ -125,6 +125,10 @@
         .gps-box p {
             color: #94a3b8;
             margin-bottom: 8px;
+        }
+        .sos-card {
+            border: 2px dashed #ef4444;
+            background-color: rgba(239, 68, 68, 0.05);
         }
         
         footer {
@@ -199,11 +203,28 @@
             </div>
             <div id="galleryContainer" class="gallery-grid"></div>
 
-            <!-- ส่วนระบบ GPS นำทางผสมผสาน -->
+            <!-- ส่วนระบบ GPS นำทาง & ไรเดอร์ -->
             <div class="gps-box">
                 <p id="gpsStatus">📍 พิกัด GPS: ยังไม่ได้ดึงข้อมูล</p>
                 <button onclick="getLocation()" class="btn" style="background-color: #0ea5e9; width: 100%; margin-bottom: 8px; font-weight: bold;">🛰️ เช็คพิกัด GPS ปัจจุบัน</button>
-                <a id="mapLink" href="#" target="_blank" class="btn" style="display: none; background-color: #10b981; width: 100%; text-align: center; font-weight: bold;">🗺️ เปิด Google Maps นำทางจากจุดนี้</a>
+                <button onclick="saveLocation()" class="btn" style="background-color: #f59e0b; width: 100%; margin-bottom: 8px; font-weight: bold;">📌 บันทึกจุดจอดรถ / จุดส่งของ (ไรเดอร์)</button>
+                <p id="savedLocationText" style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 8px; display: none;"></p>
+                <a id="mapLink" href="#" target="_blank" class="btn" style="display: none; background-color: #10b981; width: 100%; text-align: center; font-weight: bold; margin-bottom: 8px;">🗺️ เปิด Google Maps นำทางจากจุดนี้</a>
+            </div>
+
+            <!-- ส่วนระบบ SOS ฉุกเฉินสำหรับความปลอดภัย (ผู้หญิง / คนทั่วไป) -->
+            <div class="gps-box sos-card">
+                <h3 style="color: #ef4444; font-size: 1rem; margin-bottom: 8px;">🚨 ระบบ SOS ขอความช่วยเหลือฉุกเฉิน</h3>
+                <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">กดปุ่มนี้เพื่อดึงพิกัดส่งให้ตำรวจหรือคนใกล้ตัวกรณีเกิดเหตุอันตราย[cite: 5]</p>
+                <button onclick="sendSOS()" class="btn" style="background-color: #ef4444; width: 100%; margin-bottom: 8px; font-weight: bold; color: #fff;">🆘 ส่งสัญญาณขอความช่วยเหลือ (SOS)</button>
+                <div id="sosResultBox" style="display: none; margin-top: 10px; background: #0f172a; padding: 10px; border-radius: 6px; border: 1px solid #ef4444;">
+                    <p id="sosText" style="font-size: 0.85rem; color: #f8fafc; word-break: break-all; margin-bottom: 8px;"></p>
+                    <button onclick="copySOS()" class="btn" style="background-color: #334155; width: 100%; font-size: 0.85rem; font-weight: bold;">📋 คัดลอกข้อความ SOS ไปวางใน LINE / แชต</button>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 10px;">
+                    <a href="tel:191" class="btn" style="flex: 1; text-align: center; background-color: #b91c1c; font-weight: bold; color: #fff;">📞 โทร 191 (ตำรวจ)</a>
+                    <a href="tel:1669" class="btn" style="flex: 1; text-align: center; background-color: #b91c1c; font-weight: bold; color: #fff;">📞 โทร 1669 (เจ็บป่วย)</a>
+                </div>
             </div>
         </div>
 
@@ -255,9 +276,15 @@
             }
         });
 
-        // ฟังก์ชันดึงพิกัด GPS
+        // ตัวแปรเก็บพิกัดปัจจุบัน
+        let currentLat = null;
+        let currentLon = null;
+
         const gpsStatus = document.getElementById('gpsStatus');
         const mapLink = document.getElementById('mapLink');
+        const savedLocationText = document.getElementById('savedLocationText');
+        const sosResultBox = document.getElementById('sosResultBox');
+        const sosText = document.getElementById('sosText');
 
         function getLocation() {
             if (navigator.geolocation) {
@@ -269,13 +296,13 @@
         }
 
         function showPosition(position) {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
+            currentLat = position.coords.latitude;
+            currentLon = position.coords.longitude;
             
-            gpsStatus.innerHTML = `✅ พิกัดของคุณ:<br>Lat: ${lat.toFixed(5)}, Lon: ${lon.toFixed(5)}`;
+            gpsStatus.innerHTML = `✅ พิกัดของคุณ:<br>Lat: ${currentLat.toFixed(5)}, Lon: ${currentLon.toFixed(5)}`;
             
             // ตั้งค่าลิงก์เปิด Google Maps นำทาง
-            mapLink.href = `https://www.google.com/maps?q=${lat},${lon}`;
+            mapLink.href = `https://www.google.com/maps?q=${currentLat},${currentLon}`;
             mapLink.style.display = "block"; // แสดงปุ่มเปิดแผนที่
         }
 
@@ -294,6 +321,55 @@
                     gpsStatus.innerText = "❌ เกิดข้อผิดพลาดที่ไม่รู้สาเหตุ";
                     break;
             }
+        }
+
+        // ฟังก์ชันสำหรับไรเดอร์ บันทึกจุดจอดรถ/จุดส่งของ
+        function saveLocation() {
+            if (!currentLat || !currentLon) {
+                alert('กรุณากด "เช็คพิกัด GPS ปัจจุบัน" ก่อนบันทึกครับ!');
+                getLocation();
+                return;
+            }
+            savedLocationText.style.display = "block";
+            savedLocationText.innerHTML = `📌 บันทึกจุดล่าสุดสำเร็จ: Lat: ${currentLat.toFixed(5)}, Lon: ${currentLon.toFixed(5)}`;
+            alert('บันทึกพิกัดจุดนี้เรียบร้อยแล้ว!');
+        }
+
+        // ฟังก์ชัน SOS ขอความช่วยเหลือฉุกเฉิน
+        function sendSOS() {
+            if (!navigator.geolocation) {
+                alert('เบราว์เซอร์ไม่รองรับ GPS ไม่สามารถส่งพิกัด SOS ได้');
+                return;
+            }
+            
+            gpsStatus.innerText = "🚨 กำลังดึงพิกัดฉุกเฉินเพื่อขอความช่วยเหลือ...";
+            navigator.geolocation.getCurrentPosition(function(position) {
+                currentLat = position.coords.latitude;
+                currentLon = position.coords.longitude;
+                
+                gpsStatus.innerHTML = `✅ พิกัดของคุณ:<br>Lat: ${currentLat.toFixed(5)}, Lon: ${currentLon.toFixed(5)}`;
+                
+                let mapsUrl = `https://www.google.com/maps?q=${currentLat},${currentLon}`;
+                let message = `🚨 ขอความช่วยเหลือด่วน! เกิดเหตุฉุกเฉิน/ไม่ปลอดภัย พิกัดปัจจุบันของฉันคือ: ${mapsUrl} (Lat: ${currentLat.toFixed(5)}, Lon: ${currentLon.toFixed(5)})`;
+                
+                sosText.innerText = message;
+                sosResultBox.style.display = "block";
+                
+                // แจ้งเตือนสั่นหรือแจ้งเตือนเบื้องต้น
+                alert('สร้างข้อความ SOS สำเร็จ! กรุณากดปุ่ม "คัดลอกข้อความ" เพื่อส่งให้ตำรวจหรือคนสนิททาง LINE ได้เลยครับ');
+            }, function(error) {
+                alert('ไม่สามารถดึงพิกัดได้ กรุณาเปิดใช้งาน GPS ที่มือถือครับ');
+            }, { enableHighAccuracy: true });
+        }
+
+        // คัดลอกข้อความ SOS
+        function copySOS() {
+            let textToCopy = sosText.innerText;
+            navigator.clipboard.writeText(textToCopy).then(function() {
+                alert('คัดลอกข้อความ SOS เรียบร้อย! นำไปวางส่งใน LINE ได้เลย');
+            }, function(err) {
+                alert('คัดลอกไม่สำเร็จ ลองใช้วิธีลากคลุมข้อความแล้วคัดลอกด้วยตัวเองครับ');
+            });
         }
     </script>
 
