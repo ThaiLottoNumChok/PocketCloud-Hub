@@ -3,303 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberCore - หมากฮอสไทย (VS AI แชมป์)</title>
+    <title>Thai Checkers Arena - PocketCloud</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
-            margin: 0;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        h1 {
-            font-size: 1.5rem;
-            color: #38bdf8;
-            margin-bottom: 5px;
-            text-align: center;
-        }
-        .status {
-            font-size: 1rem;
-            margin-bottom: 15px;
-            padding: 8px 15px;
-            background-color: #1e293b;
-            border-radius: 8px;
-            border: 1px solid #334155;
-            text-align: center;
-        }
-        .board-container {
-            width: 100%;
-            max-width: 360px;
-            aspect-ratio: 1 / 1;
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0f172a; color: #f8fafc; padding: 20px; line-height: 1.5; text-align: center; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .card { background-color: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #38bdf855; margin-bottom: 20px; text-align: left; }
+        h1 { font-size: 1.5rem; color: #38bdf8; margin-bottom: 10px; text-align: center; }
+        p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 15px; text-align: center; }
+        
+        .checkers-board {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
-            grid-template-rows: repeat(8, 1fr);
-            border: 4px solid #334155;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-            margin-bottom: 20px;
+            width: 320px;
+            height: 320px;
+            margin: 20px auto;
+            border: 3px solid #334155;
+            border-radius: 4px;
         }
-        .cell {
+        .c-cell {
+            width: 40px;
+            height: 40px;
             display: flex;
-            justify-content: center;
             align-items: center;
-            cursor: pointer;
-            position: relative;
-        }
-        .light {
-            background-color: #f1f5f9;
-        }
-        .dark {
-            background-color: #475569;
-        }
-        .cell.highlight {
-            background-color: #38bdf8 !important;
-        }
-        .piece {
-            width: 80%;
-            height: 80%;
-            border-radius: 50%;
-            display: flex;
             justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            font-size: 0.8rem;
-            box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), 0 4px 6px rgba(0,0,0,0.3);
-            transition: transform 0.1s;
+            font-size: 1.5rem;
         }
-        .piece.red {
-            background: radial-gradient(circle at 30% 30%, #f87171, #dc2626);
-            color: #fee2e2;
-        }
-        .piece.blue {
-            background: radial-gradient(circle at 30% 30%, #60a5fa, #2563eb);
-            color: #eff6ff;
-        }
-        .piece.king::after {
-            content: '👑';
-            font-size: 1rem;
-        }
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            width: 100%;
-            max-width: 360px;
-        }
+        .c-light { background-color: #e2e8f0; }
+        .c-dark { background-color: #334155; }
+        
         .btn {
-            flex: 1;
-            background-color: #334155;
+            background-color: #0284c7;
             color: #fff;
-            border: none;
-            padding: 10px;
+            padding: 10px 15px;
             border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            text-align: center;
             text-decoration: none;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-block;
+            width: 100%;
+            text-align: center;
         }
-        .btn:hover {
-            background-color: #0ea5e9;
-        }
+        .btn:hover { background-color: #0ea5e9; }
+        .btn-back { display: inline-block; background-color: #334155; color: #fff; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-size: 0.9rem; margin-top: 15px; width: 100%; text-align: center; }
+        .btn-back:hover { background-color: #475569; }
     </style>
 </head>
 <body>
-
-    <h1>♟️ หมากฮอสไทย VS AI แชมป์</h1>
-    <div id="status" class="status">ตาเดิน: ฝ่ายสีแดง (🔴 ผู้เล่น)</div>
-
-    <div class="board-container" id="board"></div>
-
-    <div class="btn-group">
-        <button class="btn" onclick="resetGame()">🔄 เริ่มเกมใหม่</button>
-        <a href="index.html" class="btn" style="background-color: #475569;">🏠 กลับหน้าหลัก</a>
+    <div class="container">
+        <div class="card">
+            <h1>♟️ Thai Checkers Arena</h1>
+            <p>// เกมกระดานหมากฮอสไทยคลาสสิก ดวลสมอง 2 ผู้เล่น (โหมดซ้อมสนาม)</p>
+            
+            <h3 style="color: #38bdf8; font-size: 1rem; margin-bottom: 5px; text-align: center;">🏆 โหมดซ้อมมือชิงแชมป์ประเทศไทย</h3>
+            <div class="checkers-board" id="board"></div>
+            
+            <button onclick="alert('เริ่มเกมซ้อมชิงแชมป์! ขอให้คว้าแชมป์ประเทศไทยครับ 555')" class="btn">🎯 เริ่มเกมจำลอง</button>
+            <a href="index.html" class="btn-back">⬅️ กลับหน้าหลัก PocketCloud Hub</a>
+        </div>
     </div>
 
     <script>
-        const boardElement = document.getElementById('board');
-        const statusElement = document.getElementById('status');
-
-        let board = [];
-        let turn = 1; // 1 = แดง (ผู้เล่น), -1 = น้ำเงิน (AI)
-        let selectedPiece = null;
-        let validMoves = [];
-        let isAiThinking = false;
-
-        function resetGame() {
-            board = [
-                [ 0, -1,  0, -1,  0, -1,  0, -1],
-                [-1,  0, -1,  0, -1,  0, -1,  0],
-                [ 0, -1,  0, -1,  0, -1,  0, -1],
-                [ 0,  0,  0,  0,  0,  0,  0,  0],
-                [ 0,  0,  0,  0,  0,  0,  0,  0],
-                [ 1,  0,  1,  0,  1,  0,  1,  0],
-                [ 0,  1,  0,  1,  0,  1,  0,  1],
-                [ 1,  0,  1,  0,  1,  0,  1,  0]
-            ];
-            turn = 1;
-            selectedPiece = null;
-            validMoves = [];
-            isAiThinking = false;
-            renderBoard();
-        }
-
-        function renderBoard() {
-            boardElement.innerHTML = '';
-            for (let r = 0; r < 8; r++) {
-                for (let c = 0; c < 8; c++) {
-                    const cell = document.createElement('div');
-                    cell.className = `cell ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
-                    cell.dataset.row = r;
-                    cell.dataset.col = c;
-
-                    if (turn === 1 && validMoves.some(m => m.r === r && m.c === c)) {
-                        cell.classList.add('highlight');
-                    }
-
-                    const pieceVal = board[r][c];
-                    if (pieceVal !== 0) {
-                        const piece = document.createElement('div');
-                        piece.className = 'piece';
-                        if (pieceVal > 0) {
-                            piece.classList.add('red');
-                            if (pieceVal === 2) piece.classList.add('king');
-                        } else {
-                            piece.classList.add('blue');
-                            if (pieceVal === -2) piece.classList.add('king');
-                        }
-                        cell.appendChild(piece);
-                    }
-
-                    cell.addEventListener('click', () => handleCellClick(r, c));
-                    boardElement.appendChild(cell);
-                }
-            }
-
-            if (isAiThinking) {
-                statusElement.innerHTML = "🤖 AI แชมป์กำลังคิดตาเดิน...";
-            } else {
-                statusElement.innerHTML = turn === 1 ? "ตาเดิน: ฝ่ายสีแดง (🔴 คุณ)" : "ตาเดิน: ฝ่ายสีน้ำเงิน (🔵 AI)";
+        const board = document.getElementById('board');
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'c-cell ' + ((r + c) % 2 === 0 ? 'c-light' : 'c-dark');
+                if (r < 3 && (r + c) % 2 !== 0) cell.innerHTML = '⚪';
+                if (r > 4 && (r + c) % 2 !== 0) cell.innerHTML = '🔴';
+                board.appendChild(cell);
             }
         }
-
-        function handleCellClick(r, c) {
-            if (turn !== 1 || isAiThinking) return;
-
-            const piece = board[r][c];
-
-            if (piece > 0) {
-                selectedPiece = { r, c };
-                validMoves = getMovesForPiece(r, c, piece, board);
-                renderBoard();
-                return;
-            }
-
-            const move = validMoves.find(m => m.r === r && m.c === c);
-            if (move && selectedPiece) {
-                executeMove(selectedPiece, move, board);
-                selectedPiece = null;
-                validMoves = [];
-                
-                turn = -1;
-                renderBoard();
-
-                isAiThinking = true;
-                setTimeout(aiTurn, 600);
-            }
-        }
-
-        function getMovesForPiece(r, c, piece, currentBoard) {
-            let moves = [];
-            const isKing = Math.abs(piece) === 2;
-            const directions = [];
-
-            if (piece > 0 || isKing) directions.push(-1); 
-            if (piece < 0 || isKing) directions.push(1);  
-
-            directions.forEach(dr => {
-                [-1, 1].forEach(dc => {
-                    let nextR = r + dr;
-                    let nextC = c + dc;
-
-                    if (isValidCoord(nextR, nextC)) {
-                        if (currentBoard[nextR][nextC] === 0 && !isKing) {
-                            if ((piece > 0 && dr === -1) || (piece < 0 && dr === 1)) {
-                                moves.push({ r: nextR, c: nextC, fromR: r, fromC: c });
-                            }
-                        } else if (currentBoard[nextR][nextC] !== 0 && Math.sign(currentBoard[nextR][nextC]) !== Math.sign(piece)) {
-                            let jumpR = nextR + dr;
-                            let jumpC = nextC + dc;
-                            if (isValidCoord(jumpR, jumpC) && currentBoard[jumpR][jumpC] === 0) {
-                                moves.push({ r: jumpR, c: jumpC, jump: true, jumpR: nextR, jumpC: nextC, fromR: r, fromC: c });
-                            }
-                        }
-
-                        if (isKing) {
-                            let kr = r + dr;
-                            let kc = c + dc;
-                            let jumped = null;
-                            while (isValidCoord(kr, kc)) {
-                                if (currentBoard[kr][kc] === 0) {
-                                    moves.push({ r: kr, c: kc, jump: !!jumped, jumpR: jumped ? jumped.r : null, jumpC: jumped ? jumped.c : null, fromR: r, fromC: c });
-                                } else {
-                                    if (Math.sign(currentBoard[kr][kc]) === Math.sign(piece)) break;
-                                    if (jumped) break;
-                                    jumped = { r: kr, c: kc };
-                                }
-                                kr += dr;
-                                kc += dc;
-                            }
-                        }
-                    }
-                });
-            });
-            return moves;
-        }
-
-        function executeMove(from, move, currentBoard) {
-            currentBoard[move.r][move.c] = currentBoard[from.r][from.c];
-            currentBoard[from.r][from.c] = 0;
-
-            if (move.jump && move.jumpR !== null && move.jumpC !== null) {
-                currentBoard[move.jumpR][move.jumpC] = 0;
-            }
-
-            if (currentBoard[move.r][move.c] === 1 && move.r === 0) currentBoard[move.r][move.c] = 2;
-            if (currentBoard[move.r][move.c] === -1 && move.r === 7) currentBoard[move.r][move.c] = -2;
-        }
-
-        function aiTurn() {
-            let allAiMoves = [];
-            for (let r = 0; r < 8; r++) {
-                for (let c = 0; c < 8; c++) {
-                    if (board[r][c] < 0) {
-                        let moves = getMovesForPiece(r, c, board[r][c], board);
-                        allAiMoves = allAiMoves.concat(moves);
-                    }
-                }
-            }
-
-            if (allAiMoves.length > 0) {
-                let jumpMoves = allAiMoves.filter(m => m.jump);
-                let chosenMove = jumpMoves.length > 0 ? jumpMoves[Math.floor(Math.random() * jumpMoves.length)] : allAiMoves[Math.floor(Math.random() * allAiMoves.length)];
-
-                executeMove({ r: chosenMove.fromR, c: chosenMove.fromC }, chosenMove, board);
-            }
-
-            turn = 1;
-            isAiThinking = false;
-            renderBoard();
-        }
-
-        function isValidCoord(r, c) {
-            return r >= 0 && r < 8 && c >= 0 && c < 8;
-        }
-
-        resetGame();
     </script>
-
 </body>
 </html>
