@@ -140,6 +140,13 @@
         .btn:hover {
             background-color: #0284c7;
         }
+        .btn-danger {
+            background-color: #ef4444;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
         .grid-files {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -153,6 +160,7 @@
             padding: 15px 10px;
             text-align: center;
             cursor: pointer;
+            position: relative;
             transition: all 0.2s;
         }
         .file-item:hover {
@@ -168,6 +176,25 @@
             font-size: 0.85rem;
             color: #cbd5e1;
             word-break: break-all;
+        }
+        .delete-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .file-item:hover .delete-badge {
+            opacity: 1;
         }
 
         /* ช่องบันทึกข้อความ (Vault Notes) */
@@ -189,7 +216,6 @@
 <body>
 
     <div class="container">
-        <!-- แถบจำลองหน้าต่างโปรแกรม -->
         <div class="window-header">
             <div class="window-title">💽 Virtual Hard Disk Hub - PocketCloud Storage</div>
             <div class="window-controls">
@@ -202,7 +228,6 @@
         <div class="explorer-body">
             <a href="index.html" class="back-btn">⬅️ กลับสู่หน้าหลัก PocketCloud Hub</a>
 
-            <!-- แถบเมนูเลือกฟังก์ชัน (Tabs) -->
             <div class="tab-menu">
                 <button class="tab-btn active" onclick="switchTab(event, 'tab-disk')">📁 ไดรฟ์จำลอง & อัปโหลด</button>
                 <button class="tab-btn" onclick="switchTab(event, 'tab-assets')">🎬 คลัง Asset สตรีมเมอร์</button>
@@ -222,21 +247,14 @@
                     </div>
                 </div>
 
-                <div style="margin-bottom: 15px;">
-                    <label for="fileUploadInput" class="btn" style="cursor: pointer; display: inline-block;">➕ อัปโหลดไฟล์เข้าฮาร์ดดิสก์</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <label for="fileUploadInput" class="btn" style="cursor: pointer;">➕ อัปโหลดไฟล์เข้าฮาร์ดดิสก์</label>
                     <input type="file" id="fileUploadInput" style="display: none;" multiple onchange="handleFileUpload(event)">
                 </div>
 
-                <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">🗂️ รายการไฟล์ในระบบ:</p>
+                <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">🗂️ รายการไฟล์ในระบบ (คลิกที่ปุ่มแดงมุมขวาของไฟล์เพื่อลบ):</p>
                 <div class="grid-files" id="fileGridContainer">
-                    <div class="file-item" onclick="alert('📂 โฟลเดอร์ระบบ: System Core')">
-                        <div class="file-icon">📁</div>
-                        <div class="file-name">System_Core</div>
-                    </div>
-                    <div class="file-item" onclick="alert('📜 ไฟล์ตั้งค่า: config.json')">
-                        <div class="file-icon">📜</div>
-                        <div class="file-name">config.json</div>
-                    </div>
+                    <!-- โหลดไฟล์ผ่าน Script -->
                 </div>
             </div>
 
@@ -278,19 +296,13 @@
     </div>
 
     <script>
-        // ระบบสลับแท็บ
         function switchTab(evt, tabId) {
-            const contents = document.querySelectorAll('.tab-content');
-            contents.forEach(c => c.classList.remove('active'));
-
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(b => b.classList.remove('active'));
-
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             evt.currentTarget.classList.add('active');
         }
 
-        // ระบบบันทึกสมุดบันทึก (Vault) ด้วย LocalStorage
         window.addEventListener('DOMContentLoaded', () => {
             const savedNote = localStorage.getItem('pocketcloud_vault_note');
             if (savedNote) {
@@ -305,13 +317,12 @@
             alert('✅ บันทึกข้อมูลลงฮาร์ดดิสก์ลับเรียบร้อยแล้ว!');
         }
 
-        // ระบบจำลองอัปโหลดไฟล์เก็บในเครื่อง (LocalStorage)
         function handleFileUpload(event) {
             const files = event.target.files;
             let userFiles = JSON.parse(localStorage.getItem('pocketcloud_user_files') || '[]');
 
             for (let i = 0; i < files.length; i++) {
-                userFiles.push({ name: files[i].name, type: 'file' });
+                userFiles.push({ name: files[i].name });
             }
 
             localStorage.setItem('pocketcloud_user_files', JSON.stringify(userFiles));
@@ -321,7 +332,6 @@
 
         function loadUserFiles() {
             const container = document.getElementById('fileGridContainer');
-            // คงค่าไฟล์ระบบเริ่มต้นไว้ แล้วเพิ่มไฟล์ที่อัปโหลดทีหลัง
             let html = `
                 <div class="file-item" onclick="alert('📂 โฟลเดอร์ระบบ: System Core')">
                     <div class="file-icon">📁</div>
@@ -334,17 +344,29 @@
             `;
 
             const userFiles = JSON.parse(localStorage.getItem('pocketcloud_user_files') || '[]');
-            userFiles.forEach(f => {
+            userFiles.forEach((f, index) => {
                 html += `
-                    <div class="file-item" onclick="alert('📄 เปิดไฟล์ผู้ใช้: ${f.name}')">
-                        <div class="file-icon">📄</div>
-                        <div class="file-name">${f.name}</div>
+                    <div class="file-item">
+                        <div class="delete-badge" onclick="deleteUserFile(event, ${index})" title="ลบไฟล์นี้">✕</div>
+                        <div class="file-icon" onclick="alert('📄 เปิดไฟล์: ${f.name}')">📄</div>
+                        <div class="file-name" onclick="alert('📄 เปิดไฟล์: ${f.name}')">${f.name}</div>
                     </div>
                 `;
             });
 
             container.innerHTML = html;
             document.getElementById('storageUsed').innerText = `ใช้ไป ${ (12.5 + (userFiles.length * 1.2)).toFixed(1) } MB จาก 1 GB`;
+        }
+
+        function deleteUserFile(event, index) {
+            event.stopPropagation(); // ป้องกันไม่ให้เปิดไฟล์ตอนกดปุ่มลบ
+            let userFiles = JSON.parse(localStorage.getItem('pocketcloud_user_files') || '[]');
+            
+            if (confirm('คุณต้องการลบไฟล์นี้ออกจากไดรฟ์ใช่หรือไม่?')) {
+                userFiles.splice(index, 1); // ตัดไฟล์ออกจากรายการ
+                localStorage.setItem('pocketcloud_user_files', JSON.stringify(userFiles));
+                loadUserFiles();
+            }
         }
     </script>
 </body>
