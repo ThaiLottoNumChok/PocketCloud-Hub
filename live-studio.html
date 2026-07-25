@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Live Studio - PocketCloud</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0f172a; color: #f8fafc; padding: 20px; line-height: 1.5; }
+        .container { max-width: 650px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+        
+        .card { background-color: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #38bdf855; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        h1 { font-size: 1.5rem; color: #38bdf8; margin-bottom: 5px; }
+        h2 { font-size: 1.1rem; margin-bottom: 12px; color: #cbd5e1; border-left: 4px solid #38bdf8; padding-left: 10px; }
+        p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 12px; }
+
+        /* ส่วนพรีวิวกล้อง */
+        .preview-container { position: relative; width: 100%; aspect-ratio: 16/9; background-color: #000; border-radius: 8px; overflow: hidden; border: 2px solid #334155; margin-bottom: 15px; }
+        #webcamVideo { width: 100%; height: 100%; object-fit: cover; }
+        .overlay-text { position: absolute; bottom: 15px; left: 15px; background: rgba(0, 0, 0, 0.7); color: #38bdf8; padding: 5px 12px; border-radius: 6px; font-size: 1rem; font-weight: bold; border: 1px solid #38bdf855; pointer-events: none; }
+
+        /* ปุ่มและฟอร์มควบคุม */
+        .control-group { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .btn { background-color: #2563eb; color: #fff; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: bold; transition: background 0.2s; flex: 1; text-align: center; }
+        .btn:hover { background-color: #1d4ed8; }
+        .btn-secondary { background-color: #334155; }
+        .btn-secondary:hover { background-color: #475569; }
+        .btn-danger { background-color: #b91c1c; }
+        .btn-danger:hover { background-color: #991b1b; }
+        .btn-success { background-color: #10b981; color: #fff; }
+        .btn-success:hover { background-color: #059669; }
+
+        input[type="text"], textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155; background-color: #0f172a; color: #fff; font-size: 0.9rem; resize: vertical; }
+        
+        /* สถานะและตัวจับเวลา */
+        .status-badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; background-color: #10b981; color: #fff; margin-bottom: 10px; }
+        .timer-display { font-size: 2rem; font-weight: bold; color: #38bdf8; text-align: center; margin: 10px 0; font-family: monospace; background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #334155; }
+
+        /* ตารางลิงก์แพลตฟอร์ม */
+        .platform-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .btn-platform { color: #fff; padding: 12px; border-radius: 8px; text-decoration: none; font-size: 0.9rem; font-weight: bold; text-align: center; display: block; transition: opacity 0.2s; }
+        .btn-platform:hover { opacity: 0.85; }
+
+        .btn-back { display: block; background-color: #475569; color: #fff; padding: 12px; border-radius: 8px; text-decoration: none; text-align: center; font-weight: bold; font-size: 0.9rem; transition: background 0.2s; }
+        .btn-back:hover { background-color: #64748b; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- ส่วนหัวข้อหลัก -->
+        <div class="card">
+            <h1>🎙️ Ultimate Live Studio</h1>
+            <p>// ศูนย์ควบคุมระบบไลฟ์สด พรีวิวกล้อง จับเวลา และสคริปต์ในหน้าเดียว</p>
+            
+            <!-- หน้าจอพรีวิวเว็บแคม -->
+            <div class="preview-container">
+                <video id="webcamVideo" autoplay playsinline muted></video>
+                <div id="displayOverlay" class="overlay-text">PocketCloud Live Studio</div>
+            </div>
+
+            <div class="control-group">
+                <button class="btn btn-success" id="startCamBtn">🟢 เปิดกล้อง</button>
+                <button class="btn btn-danger" id="stopCamBtn">🔴 ปิดกล้อง</button>
+            </div>
+
+            <!-- เปลี่ยนข้อความซ้อนทับ -->
+            <div class="control-group" style="margin-top: 10px;">
+                <input type="text" id="textInput" placeholder="พิมพ์ข้อความซ้อนทับหน้าจอ..." value="PocketCloud Live Studio">
+                <button class="btn btn-secondary" id="updateTextBtn" style="flex: unset;">💬 เปลี่ยนข้อความ</button>
+            </div>
+        </div>
+
+        <!-- ส่วนควบคุมสถานะ & ตัวจับเวลา -->
+        <div class="card">
+            <h2>⏱️ ควบคุมสถานะและเวลาสตรีม</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.9rem; color: #94a3b8;">สถานะปัจจุบัน:</span>
+                <span id="streamStatusBadge" class="status-badge">🟢 กำลังจัดรายการปกติ</span>
+            </div>
+            <div class="control-group" style="margin-top: 8px;">
+                <button onclick="setStatus('🟢 กำลังจัดรายการปกติ', '#10b981')" class="btn btn-success" style="font-size: 0.8rem;">ปกติ</button>
+                <button onclick="setStatus('🟡 กำลังพักเบรก / รอเริ่ม', '#f59e0b')" class="btn" style="background:#f59e0b; font-size: 0.8rem;">พักเบรก</button>
+                <button onclick="setStatus('🔴 เตรียมปิดไลฟ์', '#ef4444')" class="btn btn-danger" style="font-size: 0.8rem;">ปิดไลฟ์</button>
+            </div>
+
+            <p style="margin-top: 15px; margin-bottom: 5px;">⏳ ตัวจับเวลาถอยหลัง (เบรก / ช่วงกิจกรรม):</p>
+            <div id="timerDisplay" class="timer-display">00:00</div>
+            <div class="control-group">
+                <button onclick="startTimer(300)" class="btn btn-secondary">5 นาที</button>
+                <button onclick="startTimer(600)" class="btn btn-secondary">10 นาที</button>
+                <button onclick="stopTimer()" class="btn btn-danger">รีเซ็ตเวลา</button>
+            </div>
+        </div>
+
+        <!-- ส่วนจดบันทึกสคริปต์รายการ -->
+        <div class="card">
+            <h2>📝 บอร์ดสคริปต์ & คิวพูดคุย</h2>
+            <p>พิมพ์สคริปต์ หัวข้อ หรือลำดับรายการ (บันทึกอัตโนมัติในเครื่อง)</p>
+            <textarea id="liveScript" rows="4" placeholder="19:00 - ทักทายผู้ชม&#10;19:15 - เข้าเรื่องเนื้อหาหลัก&#10;20:00 - Q&A ตอบคำถาม"></textarea>
+            <button onclick="saveScript()" class="btn btn-success" style="width: 100%; margin-top: 10px;">💾 บันทึกสคริปต์</button>
+            <p id="saveMsg" style="font-size: 0.75rem; color: #10b981; text-align: center; margin-top: 5px; display: none;">✅ บันทึกสำเร็จ!</p>
+        </div>
+
+        <!-- ส่วนทางด่วนแพลตฟอร์ม -->
+        <div class="card">
+            <h2>🚀 ทางด่วนหลังบ้านแพลตฟอร์ม</h2>
+            <div class="platform-grid" style="margin-bottom: 12px;">
+                <a href="https://studio.youtube.com" target="_blank" class="btn-platform" style="background-color: #dc2626;">🔴 YouTube Studio</a>
+                <a href="https://www.facebook.com/live/create" target="_blank" class="btn-platform" style="background-color: #2563eb;">🔵 Facebook Live</a>
+                <a href="https://dashboard.twitch.tv" target="_blank" class="btn-platform" style="background-color: #7c3aed;">🟣 Twitch Dashboard</a>
+                <a href="https://www.tiktok.com/live/studio" target="_blank" class="btn-platform" style="background-color: #0f172a; border: 1px solid #38bdf8;">⚫ TikTok Studio</a>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a href="https://restream.io" target="_blank" class="btn-platform" style="flex: 1; background-color: #f97316;">🟠 Restream.io</a>
+                <a href="https://aircast.app" target="_blank" class="btn-platform" style="flex: 1; background-color: #059669;">🟢 Aircast</a>
+            </div>
+        </div>
+
+        <a href="index.html" class="btn-back">🏠 กลับสู่หน้าหลัก PocketCloud Hub</a>
+
+    </div>
+
+    <script>
+        // ระบบกล้องเว็บแคม
+        const videoElement = document.getElementById('webcamVideo');
+        const displayOverlay = document.getElementById('displayOverlay');
+        let mediaStream = null;
+
+        document.getElementById('startCamBtn').addEventListener('click', async () => {
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                videoElement.srcObject = mediaStream;
+            } catch (err) {
+                alert('ไม่สามารถเปิดกล้องได้ กรุณาตรวจสอบสิทธิ์การเข้าถึง: ' + err.message);
+            }
+        });
+
+        document.getElementById('stopCamBtn').addEventListener('click', () => {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                videoElement.srcObject = null;
+            }
+        });
+
+        document.getElementById('updateTextBtn').addEventListener('click', () => {
+            const val = document.getElementById('textInput').value.trim();
+            displayOverlay.innerText = val !== '' ? val : 'PocketCloud Live Studio';
+        });
+
+        // ระบบเปลี่ยนสถานะ
+        function setStatus(text, color) {
+            const badge = document.getElementById('streamStatusBadge');
+            badge.innerText = text;
+            badge.style.backgroundColor = color;
+        }
+
+        // ระบบจับเวลา
+        let timerInterval = null;
+        function startTimer(duration) {
+            clearInterval(timerInterval);
+            let timer = duration, minutes, seconds;
+            const display = document.getElementById('timerDisplay');
+            
+            timerInterval = setInterval(() => {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(timerInterval);
+                    display.textContent = "00:00 (หมดเวลา!)";
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            document.getElementById('timerDisplay').textContent = "00:00";
+        }
+
+        // ระบบบันทึกสคริปต์อัตโนมัติ
+        window.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem('pocketcloud_ultimate_script');
+            if (saved) document.getElementById('liveScript').value = saved;
+        });
+
+        function saveScript() {
+            const val = document.getElementById('liveScript').value;
+            localStorage.setItem('pocketcloud_ultimate_script', val);
+            const msg = document.getElementById('saveMsg');
+            msg.style.display = 'block';
+            setTimeout(() => msg.style.display = 'none', 2000);
+        }
+    </script>
+</body>
+</html>

@@ -297,14 +297,15 @@
         <div class="card" style="border: 1px solid #a855f755; background-color: #0f172a;">
             <h2 style="color: #c084fc; border-left: 4px solid #c084fc;">🎙️ 8. Streamer Control Center</h2>
             <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 12px;">
-                // ระบบมอนิเตอร์และควบคุมสคริปต์ไลฟ์สดส่วนตัวบนมือถือ
+                // ศูนย์ควบคุมระบบไลฟ์สตรีมมิ่งและเครื่องมือสตรีมเมอร์
             </p>
             
-            <a href="obs.html" class="btn" style="background-color: #c084fc; font-weight: bold; color: #0f172a; width: 100%; text-align: center; margin-bottom: 15px; display: block;">📺 เปิดหน้าจอแยก Streamer & Multi-Platform Hub</a>
+            <!-- ปุ่มลิงก์ไปหน้าสตูดิโอไลฟ์สดฉบับเต็มที่เราสร้างขึ้นใหม่ -->
+            <a href="live-studio.html" class="btn" style="background-color: #c084fc; font-weight: bold; color: #0f172a; width: 100%; text-align: center; margin-bottom: 15px; display: block; padding: 12px; font-size: 1rem;">🎙️ เปิดหน้า Ultimate Live Studio (เต็มรูปแบบ)</a>
 
             <div class="streamer-box">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 0.85rem; color: #94a3b8;">สถานะสตรีม:</span>
+                    <span style="font-size: 0.85rem; color: #94a3b8;">สถานะสตรีมย่อ:</span>
                     <span id="streamStatusBadge" class="status-badge">🟢 กำลังจัดรายการปกติ</span>
                 </div>
                 <div style="display: flex; gap: 5px; margin-bottom: 15px;">
@@ -321,9 +322,9 @@
                     <button onclick="stopTimer()" class="btn" style="flex:1; font-size:0.75rem; background:#b91c1c;">รีเซ็ต</button>
                 </div>
 
-                <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 4px;">📝 บอร์ดสคริปต์พูดคุย (Live Notes):</p>
-                <textarea id="streamScript" class="streamer-textarea" placeholder="พิมพ์หัวข้อหรือสคริปต์ที่จะพูดในไลฟ์สดตรงนี้ บันทึกอัตโนมัติ..."></textarea>
-                <button onclick="saveScript()" class="btn" style="background-color: #a855f7; width: 100%; font-weight: bold; color: #fff;">💾 บันทึกสคริปต์เก็บไว้ในเครื่อง</button>
+                <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 4px;">📝 บอร์ดสคริปต์ย่อ (Live Notes):</p>
+                <textarea id="streamScript" class="streamer-textarea" placeholder="พิมพ์หัวข้อสคริปต์ย่อๆ บันทึกอัตโนมัติ..."></textarea>
+                <button onclick="saveScript()" class="btn" style="background-color: #a855f7; width: 100%; font-weight: bold; color: #fff;">💾 บันทึกสคริปต์</button>
             </div>
         </div>
 
@@ -334,6 +335,7 @@
     </footer>
 
     <script>
+        // ระบบอัปโหลดรูปภาพแกลเลอรี
         const imageInput = document.getElementById('imageInput');
         const galleryContainer = document.getElementById('galleryContainer');
         imageInput.addEventListener('change', function(event) {
@@ -350,6 +352,49 @@
                 reader.readAsDataURL(file);
             }
         });
+
+        // ระบบสถานะและตัวจับเวลาหน้าแรก
+        function setStatus(text, color) {
+            const badge = document.getElementById('streamStatusBadge');
+            badge.innerText = text;
+            badge.style.backgroundColor = color;
+        }
+
+        let timerInterval = null;
+        function startTimer(duration) {
+            clearInterval(timerInterval);
+            let timer = duration, minutes, seconds;
+            const display = document.getElementById('timerDisplay');
+            
+            timerInterval = setInterval(() => {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+                display.textContent = minutes + ":" + seconds;
+                if (--timer < 0) {
+                    clearInterval(timerInterval);
+                    display.textContent = "00:00 (หมดเวลา!)";
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            document.getElementById('timerDisplay').textContent = "00:00";
+        }
+
+        // ระบบบันทึกสคริปต์หน้าแรก
+        window.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem('pocketcloud_index_script');
+            if (saved) document.getElementById('streamScript').value = saved;
+        });
+
+        function saveScript() {
+            const val = document.getElementById('streamScript').value;
+            localStorage.setItem('pocketcloud_index_script', val);
+            alert('✅ บันทึกสคริปต์เรียบร้อยแล้ว!');
+        }
     </script>
 </body>
 </html>
