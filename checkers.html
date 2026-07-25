@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberCore - หมากฮอสไทย</title>
+    <title>CyberCore - หมากฮอสไทย (VS AI แชมป์)</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -108,8 +108,8 @@
 </head>
 <body>
 
-    <h1>♟️ หมากฮอสไทย (Thai Checkers)</h1>
-    <div id="status" class="status">ตาเดิน: ฝ่ายสีแดง (🔴)</div>
+    <h1>♟️ หมากฮอสไทย VS AI แชมป์</h1>
+    <div id="status" class="status">ตาเดิน: ฝ่ายสีแดง (🔴 ผู้เล่น)</div>
 
     <div class="board-container" id="board"></div>
 
@@ -122,11 +122,11 @@
         const boardElement = document.getElementById('board');
         const statusElement = document.getElementById('status');
 
-        // กระดาน 8x8: 0 = ว่าง, 1 = เบี้ยแดง, 2 = ฮอสแดง, -1 = เบี้ยน้ำเงิน, -2 = ฮอสน้ำเงิน
         let board = [];
-        let turn = 1; // 1 = แดงเดิน, -1 = น้ำเงินเดิน
+        let turn = 1; // 1 = แดง (ผู้เล่น), -1 = น้ำเงิน (AI)
         let selectedPiece = null;
         let validMoves = [];
+        let isAiThinking = false;
 
         function resetGame() {
             board = [
@@ -142,6 +142,7 @@
             turn = 1;
             selectedPiece = null;
             validMoves = [];
+            isAiThinking = false;
             renderBoard();
         }
 
@@ -154,8 +155,7 @@
                     cell.dataset.row = r;
                     cell.dataset.col = c;
 
-                    // เช็คช่องที่เลือกเดินได้
-                    if (validMoves.some(m => m.r === r && m.c === c)) {
+                    if (turn === 1 && validMoves.some(m => m.r === r && m.c === c)) {
                         cell.classList.add('highlight');
                     }
 
@@ -178,52 +178,46 @@
                 }
             }
 
-            statusElement.innerHTML = turn === 1 ? "ตาเดิน: ฝ่ายสีแดง (🔴)" : "ตาเดิน: ฝ่ายสีน้ำเงิน (🔵)";
+            if (isAiThinking) {
+                statusElement.innerHTML = "🤖 AI แชมป์กำลังคิดตาเดิน...";
+            } else {
+                statusElement.innerHTML = turn === 1 ? "ตาเดิน: ฝ่ายสีแดง (🔴 คุณ)" : "ตาเดิน: ฝ่ายสีน้ำเงิน (🔵 AI)";
+            }
         }
 
         function handleCellClick(r, c) {
+            if (turn !== 1 || isAiThinking) return;
+
             const piece = board[r][c];
 
-            // ถ้าคลิกเลือกหมากตัวเอง
-            if ((turn === 1 && piece > 0) || (turn === -1 && piece < 0)) {
+            if (piece > 0) {
                 selectedPiece = { r, c };
-                calculateMoves(r, c, piece);
+                validMoves = getMovesForPiece(r, c, piece, board);
                 renderBoard();
                 return;
             }
 
-            // ถ้าคลิกเดินไปยังช่องที่ไฮไลต์ไว้
             const move = validMoves.find(m => m.r === r && m.c === c);
             if (move && selectedPiece) {
-                // ย้ายหมาก
-                board[move.r][move.c] = board[selectedPiece.r][selectedPiece.c];
-                board[selectedPiece.r][selectedPiece.c] = 0;
-
-                // ถ้ามีการกินข้าม
-                if (move.jump) {
-                    board[move.jumpR][move.jumpC] = 0;
-                }
-
-                // เปลี่ยนเป็นฮอส (King) ถ้าเดินถึงสุดกระดาน
-                if (turn === 1 && move.r === 0) board[move.r][move.c] = 2;
-                if (turn === -1 && move.r === 7) board[move.r][move.c] = -2;
-
-                // เปลี่ยนตาเดิน
-                turn = -turn;
+                executeMove(selectedPiece, move, board);
                 selectedPiece = null;
                 validMoves = [];
+                
+                turn = -1;
                 renderBoard();
+
+                isAiThinking = true;
+                setTimeout(aiTurn, 600);
             }
         }
 
-        function calculateMoves(r, c, piece) {
-            validMoves = [];
+        function getMovesForPiece(r, c, piece, currentBoard) {
+            let moves = [];
             const isKing = Math.abs(piece) === 2;
             const directions = [];
 
-            // กำหนดทิศทางการเดินตามฝั่ง
-            if (piece > 0 || isKing) directions.push(-1); // เดินขึ้น
-            if (piece < 0 || isKing) directions.push(1);  // เดินลง
+            if (piece > 0 || isKing) directions.push(-1); 
+            if (piece < 0 || isKing) directions.push(1);  
 
             directions.forEach(dr => {
                 [-1, 1].forEach(dc => {
@@ -231,31 +225,28 @@
                     let nextC = c + dc;
 
                     if (isValidCoord(nextR, nextC)) {
-                        if (board[nextR][nextC] === 0 && !isKing) {
-                            // เบี้ยเดินธรรมดาได้ทีละ 1 ช่องเฉพาะแนวทิศทางของตัวเอง
+                        if (currentBoard[nextR][nextC] === 0 && !isKing) {
                             if ((piece > 0 && dr === -1) || (piece < 0 && dr === 1)) {
-                                validMoves.push({ r: nextR, c: nextC });
+                                moves.push({ r: nextR, c: nextC, fromR: r, fromC: c });
                             }
-                        } else if (board[nextR][nextC] !== 0 && Math.sign(board[nextR][nextC]) !== Math.sign(piece)) {
-                            // อาจจะมีการกระโดดกิน
+                        } else if (currentBoard[nextR][nextC] !== 0 && Math.sign(currentBoard[nextR][nextC]) !== Math.sign(piece)) {
                             let jumpR = nextR + dr;
                             let jumpC = nextC + dc;
-                            if (isValidCoord(jumpR, jumpC) && board[jumpR][jumpC] === 0) {
-                                validMoves.push({ r: jumpR, c: jumpC, jump: true, jumpR: nextR, jumpC: nextC });
+                            if (isValidCoord(jumpR, jumpC) && currentBoard[jumpR][jumpC] === 0) {
+                                moves.push({ r: jumpR, c: jumpC, jump: true, jumpR: nextR, jumpC: nextC, fromR: r, fromC: c });
                             }
                         }
 
-                        // ถ้าเป็นฮอส เดินยาวได้หลายช่อง
                         if (isKing) {
                             let kr = r + dr;
                             let kc = c + dc;
                             let jumped = null;
                             while (isValidCoord(kr, kc)) {
-                                if (board[kr][kc] === 0) {
-                                    validMoves.push({ r: kr, c: kc, jump: !!jumped, jumpR: jumped ? jumped.r : null, jumpC: jumped ? jumped.c : null });
+                                if (currentBoard[kr][kc] === 0) {
+                                    moves.push({ r: kr, c: kc, jump: !!jumped, jumpR: jumped ? jumped.r : null, jumpC: jumped ? jumped.c : null, fromR: r, fromC: c });
                                 } else {
-                                    if (Math.sign(board[kr][kc]) === Math.sign(piece)) break; // ชนพวกเดียวกัน
-                                    if (jumped) break; // ชนตัวที่สองแล้ว เดินต่อไม่ได้
+                                    if (Math.sign(currentBoard[kr][kc]) === Math.sign(piece)) break;
+                                    if (jumped) break;
                                     jumped = { r: kr, c: kc };
                                 }
                                 kr += dr;
@@ -265,13 +256,48 @@
                     }
                 });
             });
+            return moves;
+        }
+
+        function executeMove(from, move, currentBoard) {
+            currentBoard[move.r][move.c] = currentBoard[from.r][from.c];
+            currentBoard[from.r][from.c] = 0;
+
+            if (move.jump && move.jumpR !== null && move.jumpC !== null) {
+                currentBoard[move.jumpR][move.jumpC] = 0;
+            }
+
+            if (currentBoard[move.r][move.c] === 1 && move.r === 0) currentBoard[move.r][move.c] = 2;
+            if (currentBoard[move.r][move.c] === -1 && move.r === 7) currentBoard[move.r][move.c] = -2;
+        }
+
+        function aiTurn() {
+            let allAiMoves = [];
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    if (board[r][c] < 0) {
+                        let moves = getMovesForPiece(r, c, board[r][c], board);
+                        allAiMoves = allAiMoves.concat(moves);
+                    }
+                }
+            }
+
+            if (allAiMoves.length > 0) {
+                let jumpMoves = allAiMoves.filter(m => m.jump);
+                let chosenMove = jumpMoves.length > 0 ? jumpMoves[Math.floor(Math.random() * jumpMoves.length)] : allAiMoves[Math.floor(Math.random() * allAiMoves.length)];
+
+                executeMove({ r: chosenMove.fromR, c: chosenMove.fromC }, chosenMove, board);
+            }
+
+            turn = 1;
+            isAiThinking = false;
+            renderBoard();
         }
 
         function isValidCoord(r, c) {
             return r >= 0 && r < 8 && c >= 0 && c < 8;
         }
 
-        // เริ่มต้นเกมครั้งแรก
         resetGame();
     </script>
 
