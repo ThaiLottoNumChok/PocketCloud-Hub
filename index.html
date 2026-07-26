@@ -113,7 +113,21 @@
         }
         .link-item a:hover { text-decoration: underline; }
         
-        /* ซ่อนส่วนเพิ่มสินค้าสำหรับคนทั่วไป ให้แสดงเฉพาะแอดมินที่มีรหัสผ่าน หรือเปิดโหมดจัดการ */
+        .del-btn {
+            background-color: #fee2e2;
+            color: #ef4444;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            display: none; /* ซ่อนไว้ก่อน จะแสดงเฉพาะตอนเปิดโหมดแอดมิน */
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+        .del-btn:hover { background-color: #fecaca; }
+
         #admin-section {
             display: none; 
         }
@@ -134,7 +148,7 @@
         <h1>🛍️ Shopee Hub & Recommended</h1>
         <p class="subtitle">รวมสินค้าแนะนำและลิงก์โปรโมชั่นพิเศษ</p>
         
-        <!-- ส่วนเพิ่มลิงก์ (ซ่อนไว้ให้เฉพาะเจ้าของเว็บใส่) -->
+        <!-- ส่วนเพิ่มลิงก์ (เฉพาะแอดมิน) -->
         <div class="section-box" id="admin-section">
             <h2>🛒 เพิ่มลิงก์สินค้า Shopee (แอดมิน)</h2>
             <div class="form-group">
@@ -162,7 +176,7 @@
             <button class="btn" onclick="addNewProduct()">➕ เพิ่มสินค้าเข้าหน้าเว็บ</button>
         </div>
 
-        <!-- พื้นที่แสดงรายชื่อลิงก์แยกตามหมวดหมู่ (ทุกคนมองเห็นเหมือนกันหมด) -->
+        <!-- พื้นที่แสดงรายชื่อลิงก์แยกตามหมวดหมู่ -->
         <div class="section-box" style="text-align: left;">
             <h2>📂 หมวดหมู่สินค้าทั้งหมด</h2>
             
@@ -190,16 +204,17 @@
     </div>
 
     <script>
-        // รายการสินค้ากลาง (คุณสามารถแก้เพิ่มลิงก์และรูปภาพตรงนี้ได้เลย ทุกคนที่เข้าเว็บจะเห็นสินค้าเหล่านี้เหมือนกันหมด)
         let publicProducts = JSON.parse(localStorage.getItem('public_shopee_products') || JSON.stringify([
             {
                 id: 1,
                 title: "ผลไม้ดอง ขนาด 500 กรัม แถมฟรีพริกเกลือ",
                 category: "food",
                 url: "https://shopee.co.th",
-                imgSrc: "" // ใส่ลิงก์รูปภาพตรงนี้ได้
+                imgSrc: ""
             }
         ]));
+
+        let isAdmin = false; // สถานะเช็คว่าเป็นแอดมินหรือไม่
 
         function renderProducts() {
             const categories = ['food', 'home', 'beauty', 'hobby', 'health'];
@@ -215,6 +230,9 @@
                     
                     let imgTag = item.imgSrc ? `<img src="${item.imgSrc}" class="product-thumb">` : `<div class="product-thumb" style="display:flex;align-items:center;justify-content:center;background:#e2e8f0;font-size:10px;">📦 Shopee</div>`;
                     
+                    // ถ้าเป็นแอดมิน จะแสดงปุ่มลบด้วย
+                    let deleteBtnTag = isAdmin ? `<button class="del-btn" style="display:block;" onclick="deleteProduct(${item.id})">🗑️ ลบ</button>` : '';
+
                     div.innerHTML = `
                         <div class="link-info">
                             ${imgTag}
@@ -222,18 +240,21 @@
                                 <a href="${item.url}" target="_blank">🛍️ ${item.title}</a>
                             </div>
                         </div>
+                        ${deleteBtnTag}
                     `;
                     container.appendChild(div);
                 }
             });
         }
 
-        // ฟังก์ชันเปิดช่องใส่สินค้า (ใส่รหัสผ่านกันคนอื่นแอบมาเพิ่ม)
         function toggleAdminMode() {
             const pass = prompt("กรุณากรอกรหัสผ่านผู้ดูแลระบบ:");
-            if (pass === "44104545") { // เปลี่ยนรหัสผ่านตรงนี้ได้ตามต้องการ
+            if (pass === "44104545") {
+                isAdmin = !isAdmin;
                 const adminBox = document.getElementById('admin-section');
-                adminBox.style.display = adminBox.style.display === 'block' ? 'none' : 'block';
+                adminBox.style.display = isAdmin ? 'block' : 'none';
+                renderProducts();
+                alert(isAdmin ? "เปิดโหมดแอดมินสำเร็จ (สามารถเพิ่ม/ลบสินค้าได้)" : "ปิดโหมดแอดมินแล้ว");
             } else if (pass !== null) {
                 alert("รหัสผ่านไม่ถูกต้อง!");
             }
@@ -258,7 +279,15 @@
             document.getElementById('linkImg').value = '';
             
             renderProducts();
-            alert('เพิ่มสินค้าสำเร็จ! (หมายเหตุ: หากต้องการให้ทุกคนเห็นถาวร ให้คัดลอกข้อมูลในเครื่องอัปเดตใส่โค้ด HTML)');
+            alert('เพิ่มสินค้าสำเร็จ!');
+        }
+
+        function deleteProduct(id) {
+            if (confirm('คุณต้องการลบสินค้านี้ใช่หรือไม่?')) {
+                publicProducts = publicProducts.filter(item => item.id !== id);
+                localStorage.setItem('public_shopee_products', JSON.stringify(publicProducts));
+                renderProducts();
+            }
         }
 
         renderProducts();
