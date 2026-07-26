@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Pocket Cloud & Shopee Hub ☁️🛍️</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0284c7;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .section-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+        h2 {
+            font-size: 18px;
+            color: #0f172a;
+            margin-top: 0;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+        .btn {
+            background-color: #0ea5e9;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin: 5px 0;
+        }
+        .btn:hover { background-color: #0284c7; }
+        .btn-danger { background-color: #ef4444; }
+        .btn-danger:hover { background-color: #dc2626; }
+        
+        /* สไตล์ฟอร์มลิงก์สินค้า */
+        .form-group {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            color: #475569;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .link-item {
+            background: #fff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+        }
+        .link-item a {
+            color: #ee4d2d; /* สีธีม Shopee */
+            text-decoration: none;
+            font-weight: bold;
+            word-break: break-all;
+            margin-right: 10px;
+        }
+        .link-item a:hover { text-decoration: underline; }
+        .del-link-btn {
+            background: #fee2e2;
+            color: #ef4444;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .del-link-btn:hover { background: #fecaca; }
+
+        /* ส่วนแสดงรูปภาพคลาวด์ */
+        #gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .img-card {
+            width: 100%;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>☁️ Pocket Cloud & 🛍️ Shopee Hub</h1>
+        <p class="subtitle">ระบบคลาวด์เก็บรูปและคลังลิงก์สินค้าช้อปปี้ส่วนตัว</p>
+        
+        <!-- ส่วนที่ 1: คลังลิงก์สินค้า Shopee 5 หมวดหมู่ -->
+        <div class="section-box">
+            <h2>🛒 บันทึกและจัดการลิงก์ Shopee</h2>
+            <div class="form-group">
+                <label>ชื่อสินค้า / ป้ายกำกับ:</label>
+                <input type="text" id="linkTitle" placeholder="เช่น กาแฟสำเร็จรูป, น้ำยาล้างจาน">
+            </div>
+            <div class="form-group">
+                <label>เลือกหมวดหมู่:</label>
+                <select id="linkCategory">
+                    <option value="food">🍲 อาหารและเครื่องดื่ม</option>
+                    <option value="home">🏠 เครื่องใช้ในบ้าน</option>
+                    <option value="beauty">✨ ความงามและของใช้ส่วนตัว</option>
+                    <option value="hobby">📚 เครื่องเขียน หนังสือและงานอดิเรก</option>
+                    <option value="health">💊 กลุ่มผลิตภัณฑ์เพื่อสุขภาพ</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>ลิงก์สินค้า (URL):</label>
+                <input type="url" id="linkUrl" placeholder="https://shope.ee/xxxxxx">
+            </div>
+            <button class="btn" style="width: 100%; background-color: #ee4d2d;" onclick="saveShopeeLink()">➕ บันทึก ลิงก์สินค้า</button>
+        </div>
+
+        <!-- พื้นที่แสดงรายชื่อลิงก์แยกตามหมวดหมู่ -->
+        <div class="section-box" style="text-align: left;">
+            <h2>📂 หมวดหมู่สินค้าทั้งหมด</h2>
+            
+            <div style="margin-bottom: 15px;">
+                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">🍲 อาหารและเครื่องดื่ม</h3>
+                <div id="list-food"></div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">🏠 เครื่องใช้ในบ้าน</h3>
+                <div id="list-home"></div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">✨ ความงามและของใช้ส่วนตัว</h3>
+                <div id="list-beauty"></div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">📚 เครื่องเขียน หนังสือและงานอดิเรก</h3>
+                <div id="list-hobby"></div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">💊 กลุ่มผลิตภัณฑ์เพื่อสุขภาพ</h3>
+                <div id="list-health"></div>
+            </div>
+        </div>
+
+        <!-- ส่วนที่ 2: คลาวด์รูปภาพเดิม -->
+        <div class="section-box">
+            <h2>📁 คลาวด์รูปภาพส่วนตัว</h2>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            <button class="btn" onclick="document.getElementById('fileInput').click()">📷 อัปโหลดรูปภาพ</button>
+            <button class="btn btn-danger" onclick="clearCloud()">🗑️ ล้างรูปภาพทั้งหมด</button>
+            <div id="gallery"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- ส่วนจัดการลิงก์ Shopee ---
+        const SHOPEE_KEY = 'shopee_links_data';
+
+        function saveShopeeLink() {
+            const title = document.getElementById('linkTitle').value.trim();
+            const category = document.getElementById('linkCategory').value;
+            const url = document.getElementById('linkUrl').value.trim();
+
+            if (!title || !url) {
+                alert('กรุณากรอกชื่อสินค้าและลิงก์ให้ครบถ้วนครับ!');
+                return;
+            }
+
+            const links = JSON.parse(localStorage.getItem(SHOPEE_KEY) || '[]');
+            links.push({ id: Date.now(), title, category, url });
+            localStorage.setItem(SHOPEE_KEY, JSON.stringify(links));
+
+            // ล้างช่องกรอก
+            document.getElementById('linkTitle').value = '';
+            document.getElementById('linkUrl').value = '';
+            loadShopeeLinks();
+        }
+
+        function loadShopeeLinks() {
+            const categories = ['food', 'home', 'beauty', 'hobby', 'health'];
+            categories.forEach(cat => {
+                document.getElementById(`list-${cat}`).innerHTML = '';
+            });
+
+            const links = JSON.parse(localStorage.getItem(SHOPEE_KEY) || '[]');
+            links.forEach(item => {
+                const container = document.getElementById(`list-${item.category}`);
+                if (container) {
+                    const div = document.createElement('div');
+                    div.className = 'link-item';
+                    div.innerHTML = `
+                        <a href="${item.url}" target="_blank">🛍️ ${item.title}</a>
+                        <button class="del-link-btn" onclick="deleteLink(${item.id})">ลบ</button>
+                    `;
+                    container.appendChild(div);
+                }
+            });
+        }
+
+        function deleteLink(id) {
+            let links = JSON.parse(localStorage.getItem(SHOPEE_KEY) || '[]');
+            links = links.filter(item => item.id !== id);
+            localStorage.setItem(SHOPEE_KEY, JSON.stringify(links));
+            loadShopeeLinks();
+        }
+
+        // --- ส่วนจัดการคลาวด์รูปภาพ ---
+        const fileInput = document.getElementById('fileInput');
+        const gallery = document.getElementById('gallery');
+        const IMAGE_KEY = 'my_cloud_images';
+
+        function loadImages() {
+            gallery.innerHTML = '';
+            const images = JSON.parse(localStorage.getItem(IMAGE_KEY) || '[]');
+            images.forEach(imgSrc => {
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.className = 'img-card';
+                gallery.appendChild(img);
+            });
+        }
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 500 * 1024) {
+                alert('ไฟล์รูปใหญ่เกินไป (จำกัด 500KB)');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const images = JSON.parse(localStorage.getItem(IMAGE_KEY) || '[]');
+                images.push(event.target.result);
+                try {
+                    localStorage.setItem(IMAGE_KEY, JSON.stringify(images));
+                    loadImages();
+                } catch (error) {
+                    alert('พื้นที่จัดเก็บเต็มแล้ว!');
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function clearCloud() {
+            if (confirm('ต้องการลบรูปภาพทั้งหมดใช่หรือไม่?')) {
+                localStorage.removeItem(IMAGE_KEY);
+                loadImages();
+            }
+        }
+
+        // โหลดข้อมูลทั้งหมดเมื่อเปิดหน้าเว็บ
+        loadShopeeLinks();
+        loadImages();
+    </script>
+</body>
+</html>
