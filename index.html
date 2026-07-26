@@ -24,11 +24,13 @@
             color: #0284c7;
             margin-bottom: 5px;
             text-align: center;
+            font-size: 22px;
         }
         .subtitle {
             color: #64748b;
             margin-bottom: 25px;
             text-align: center;
+            font-size: 14px;
         }
         .section-box {
             background: #f8fafc;
@@ -87,6 +89,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 10px;
             text-align: left;
         }
         .link-info {
@@ -104,29 +107,53 @@
             border: 1px solid #cbd5e1;
             flex-shrink: 0;
         }
-        .link-item a {
-            color: #ee4d2d;
-            text-decoration: none;
+        .product-title {
+            color: #1e293b;
             font-weight: bold;
-            word-break: break-all;
             font-size: 14px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
-        .link-item a:hover { text-decoration: underline; }
         
+        /* ปุ่มกดไปดูสินค้า */
+        .visit-btn {
+            background-color: #ee4d2d;
+            color: white;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            white-space: nowrap;
+            transition: background 0.3s;
+            flex-shrink: 0;
+        }
+        .visit-btn:hover {
+            background-color: #d73211;
+        }
+
+        /* ปุ่มลบสินค้าสำหรับแอดมิน */
         .del-btn {
             background-color: #fee2e2;
             color: #ef4444;
             border: none;
-            padding: 6px 12px;
+            padding: 8px 12px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: bold;
-            display: none; /* ซ่อนไว้ก่อน จะแสดงเฉพาะตอนเปิดโหมดแอดมิน */
-            margin-left: 10px;
             flex-shrink: 0;
+            transition: background 0.3s;
         }
         .del-btn:hover { background-color: #fecaca; }
+
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
         #admin-section {
             display: none; 
@@ -170,7 +197,7 @@
                 <input type="url" id="linkUrl" placeholder="https://shope.ee/xxxxxx">
             </div>
             <div class="form-group">
-                <label>ลิงก์รูปภาพสินค้า (Image URL หรืออัปโหลด):</label>
+                <label>ลิงก์รูปภาพสินค้า (Image URL):</label>
                 <input type="text" id="linkImg" placeholder="วางลิงก์รูปภาพสินค้า">
             </div>
             <button class="btn" onclick="addNewProduct()">➕ เพิ่มสินค้าเข้าหน้าเว็บ</button>
@@ -214,7 +241,7 @@
             }
         ]));
 
-        let isAdmin = false; // สถานะเช็คว่าเป็นแอดมินหรือไม่
+        let isAdmin = false;
 
         function renderProducts() {
             const categories = ['food', 'home', 'beauty', 'hobby', 'health'];
@@ -228,19 +255,20 @@
                     const div = document.createElement('div');
                     div.className = 'link-item';
                     
-                    let imgTag = item.imgSrc ? `<img src="${item.imgSrc}" class="product-thumb">` : `<div class="product-thumb" style="display:flex;align-items:center;justify-content:center;background:#e2e8f0;font-size:10px;">📦 Shopee</div>`;
+                    let imgTag = item.imgSrc ? `<img src="${item.imgSrc}" class="product-thumb">` : `<div class="product-thumb" style="display:flex;align-items:center;justify-content:center;background:#e2e8f0;font-size:10px;color:#64748b;">📦 Shopee</div>`;
                     
-                    // ถ้าเป็นแอดมิน จะแสดงปุ่มลบด้วย
-                    let deleteBtnTag = isAdmin ? `<button class="del-btn" style="display:block;" onclick="deleteProduct(${item.id})">🗑️ ลบ</button>` : '';
+                    // ปุ่มลบจะแสดงเฉพาะตอนเปิดโหมดแอดมิน
+                    let deleteBtnTag = isAdmin ? `<button class="del-btn" onclick="deleteProduct(${item.id})">🗑️ ลบ</button>` : '';
 
                     div.innerHTML = `
                         <div class="link-info">
                             ${imgTag}
-                            <div>
-                                <a href="${item.url}" target="_blank">🛍️ ${item.title}</a>
-                            </div>
+                            <div class="product-title">${item.title}</div>
                         </div>
-                        ${deleteBtnTag}
+                        <div class="action-buttons">
+                            <a href="${item.url}" target="_blank" class="visit-btn">🔗 ไปที่สินค้า</a>
+                            ${deleteBtnTag}
+                        </div>
                     `;
                     container.appendChild(div);
                 }
