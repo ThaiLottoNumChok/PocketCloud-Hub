@@ -1,0 +1,24 @@
+<script>
+    function dragWindow(e, winId) {
+        const win = document.getElementById(winId);
+        let shiftX = e.clientX - win.getBoundingClientRect().left;
+        let shiftY = e.clientY - win.getBoundingClientRect().top;
+
+        function moveAt(pageX, pageY) {
+            win.style.left = Math.max(0, pageX - shiftX) + 'px';
+            win.style.top = Math.max(0, pageY - shiftY) + 'px';
+        }
+
+        function onMouseMove(e) {
+            moveAt(e.pageX, e.pageY);
+        }
+
+        function onMouseUp() {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    }
+</script>

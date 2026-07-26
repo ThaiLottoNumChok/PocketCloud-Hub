@@ -1,427 +1,124 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Virtual Hard Disk Hub - PocketCloud</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background-color: #0f172a;
-            color: #f8fafc;
-            padding: 20px;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        .window-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #1e293b;
-            padding: 12px 20px;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-            border: 1px solid #334155;
-            border-bottom: none;
-        }
-        .window-title {
-            font-size: 1rem;
-            color: #38bdf8;
-            font-weight: bold;
-        }
-        .window-controls span {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-left: 6px;
-        }
-        .btn-close { background-color: #ef4444; }
-        .btn-minimize { background-color: #f59e0b; }
-        .btn-maximize { background-color: #10b981; }
+<script>
+    const STORAGE_KEY = 'pocketcloud_shared_files';
 
-        .explorer-body {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-bottom-left-radius: 12px;
-            border-bottom-right-radius: 12px;
-            padding: 20px;
-            min-height: 500px;
-        }
-        .back-btn {
-            display: inline-block;
-            margin-bottom: 15px;
-            background-color: #334155;
-            color: #fff;
-            padding: 8px 15px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
-        .back-btn:hover {
-            background-color: #475569;
-        }
+    window.addEventListener('DOMContentLoaded', () => {
+        loadUserFiles();
+    });
 
-        /* แถบเมนูย่อย (Tabs) */
-        .tab-menu {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 10px;
-            overflow-x: auto;
-        }
-        .tab-btn {
-            background-color: #0f172a;
-            color: #94a3b8;
-            border: 1px solid #334155;
-            padding: 8px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: bold;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-        .tab-btn.active {
-            background-color: #0ea5e9;
-            color: #fff;
-            border-color: #0ea5e9;
-        }
-
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-
-        /* ข้อมูลไดรฟ์ */
-        .drive-info {
-            background-color: #0f172a;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #334155;
-            margin-bottom: 20px;
-        }
-        .progress-bar-bg {
-            background-color: #334155;
-            border-radius: 10px;
-            height: 10px;
-            width: 100%;
-            margin-top: 8px;
-            overflow: hidden;
-        }
-        .progress-bar-fill {
-            background-color: #38bdf8;
-            height: 100%;
-            width: 25%;
-        }
-
-        /* ปุ่มต่างๆ */
-        .btn {
-            background-color: #0ea5e9;
-            color: #fff;
-            padding: 8px 15px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
-        .btn:hover {
-            background-color: #0284c7;
-        }
-        .btn-danger {
-            background-color: #ef4444;
-            padding: 4px 10px;
-            font-size: 0.75rem;
-            margin-top: 6px;
-            border-radius: 4px;
-            border: none;
-            color: #fff;
-            cursor: pointer;
-        }
-        .btn-danger:hover {
-            background-color: #dc2626;
-        }
-
-        /* ตารางไฟล์ */
-        .grid-files {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-        .file-item {
-            background-color: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 12px 8px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .file-icon-box {
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin-bottom: 8px;
-            background: #1e293b;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        .file-icon-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .file-name {
-            font-size: 0.8rem;
-            color: #cbd5e1;
-            word-break: break-all;
-            margin-bottom: 5px;
-            max-height: 2.4em;
-            overflow: hidden;
-        }
-
-        /* ช่องบันทึกข้อความ (Vault Notes) */
-        .vault-textarea {
-            width: 100%;
-            height: 250px;
-            background-color: #0f172a;
-            color: #f8fafc;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 0.95rem;
-            resize: vertical;
-            margin-bottom: 12px;
-            font-family: monospace;
-        }
-
-        /* Modal สำหรับดูรูปขยายใหญ่ */
-        #imageModal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 20px;
-        }
-        #imageModal img {
-            max-width: 100%;
-            max-height: 80vh;
-            border-radius: 8px;
-            border: 2px solid #334155;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <div class="window-header">
-            <div class="window-title">💽 Virtual Hard Disk Hub - PocketCloud Storage</div>
-            <div class="window-controls">
-                <span class="btn-minimize"></span>
-                <span class="btn-maximize"></span>
-                <span class="btn-close"></span>
-            </div>
-        </div>
-
-        <div class="explorer-body">
-            <a href="index.html" class="back-btn">⬅️ กลับสู่หน้าหลัก PocketCloud Hub</a>
-
-            <div class="tab-menu">
-                <button class="tab-btn active" onclick="switchTab(event, 'tab-disk')">📁 ไดรฟ์จำลอง & อัปโหลด</button>
-                <button class="tab-btn" onclick="switchTab(event, 'tab-assets')">🎬 คลัง Asset สตรีมเมอร์</button>
-                <button class="tab-btn" onclick="switchTab(event, 'tab-vault')">📝 สมุดบันทึกไฟล์ลับ (Vault)</button>
-            </div>
-
-            <!-- TAB 1: ไดรฟ์จำลองและอัปโหลดไฟล์ -->
-            <div id="tab-disk" class="tab-content active">
-                <div class="drive-info">
-                    <p style="font-size: 0.9rem; color: #94a3b8;">💾 Local Disk (C:) พื้นที่จัดเก็บข้อมูลจำลองส่วนตัว</p>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 5px; color: #cbd5e1;">
-                        <span id="storageUsed">ใช้ไป 12.5 MB จาก 1 GB</span>
-                        <span style="color: #38bdf8;">ว่างเพียบ</span>
-                    </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill"></div>
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 15px;">
-                    <label for="fileUploadInput" class="btn" style="cursor: pointer; display: inline-block;">➕ อัปโหลดไฟล์ / รูปภาพ</label>
-                    <input type="file" id="fileUploadInput" style="display: none;" multiple accept="image/*, .txt, .pdf" onchange="handleFileUpload(event)">
-                </div>
-
-                <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">🗂️ รายการไฟล์ในระบบ (มีปุ่มลบใต้ชื่อไฟล์):</p>
-                <div class="grid-files" id="fileGridContainer">
-                    <!-- โหลดไฟล์ผ่าน Script -->
-                </div>
-            </div>
-
-            <!-- TAB 2: คลัง Asset สตรีมเมอร์ -->
-            <div id="tab-assets" class="tab-content">
-                <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 15px;">
-                    // คลังเก็บลิงก์มีเดีย ภาพแบนเนอร์ และองค์ประกอบสำหรับใช้จัดรายการสตรีม
-                </p>
-                <div class="grid-files">
-                    <div class="file-item" onclick="window.open('https://www.youtube.com', '_blank')" style="cursor: pointer;">
-                        <div class="file-icon-box">🎬</div>
-                        <div class="file-name">YouTube Studio</div>
-                    </div>
-                    <div class="file-item" onclick="window.open('https://www.bing.com/create', '_blank')" style="cursor: pointer;">
-                        <div class="file-icon-box">✨</div>
-                        <div class="file-name">AI Image Gen</div>
-                    </div>
-                    <div class="file-item" onclick="alert('🎵 เปิดคลิปเสียงซาวด์เอฟเฟกต์ (พร้อมใช้งาน)')" style="cursor: pointer;">
-                        <div class="file-icon-box">🔊</div>
-                        <div class="file-name">Sound_FX.mp3</div>
-                    </div>
-                    <div class="file-item" onclick="alert('🖼️ โหลดแบนเนอร์สตรีมมิ่งสำเร็จ')" style="cursor: pointer;">
-                        <div class="file-icon-box">🖼️</div>
-                        <div class="file-name">Stream_Banner.png</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 3: สมุดบันทึกไฟล์ลับ (Vault) -->
-            <div id="tab-vault" class="tab-content">
-                <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">
-                    📝 ซีเคร็ตนอยด์ / สมุดบันทึกส่วนตัว (บันทึกอัตโนมัติลงในเบราว์เซอร์):
-                </p>
-                <textarea id="vaultText" class="vault-textarea" placeholder="พิมพ์ข้อความลับ, สคริปต์รายการ, หรือลิงก์สำคัญตรงนี้..."></textarea>
-                <button onclick="saveVault()" class="btn" style="width: 100%; font-size: 1rem; padding: 10px;">💾 บันทึกข้อมูลลงฮาร์ดดิสก์ลับ</button>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- Modal สำหรับดูรูปภาพขยาย -->
-    <div id="imageModal" onclick="this.style.display='none'">
-        <img id="modalImg" src="" alt="Expanded View">
-    </div>
-
-    <script>
-        function switchTab(evt, tabId) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            evt.currentTarget.classList.add('active');
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedNote = localStorage.getItem('pocketcloud_vault_note');
-            if (savedNote) {
-                document.getElementById('vaultText').value = savedNote;
-            }
+    window.addEventListener('storage', (event) => {
+        if (event.key === STORAGE_KEY) {
             loadUserFiles();
-        });
-
-        function saveVault() {
-            const text = document.getElementById('vaultText').value;
-            localStorage.setItem('pocketcloud_vault_note', text);
-            alert('✅ บันทึกข้อมูลลงฮาร์ดดิสก์ลับเรียบร้อยแล้ว!');
         }
+    });
 
-        // ระบบอัปโหลดไฟล์พร้อมแปลงเป็น Base64 เก็บรูปภาพและข้อมูล
-        function handleFileUpload(event) {
-            const files = event.target.files;
-            let userFiles = JSON.parse(localStorage.getItem('pocketcloud_user_files') || '[]');
+    function sanitizeHTML(str) {
+        return str.replace(/[&<>'"]/g, 
+            tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+        );
+    }
 
-            let processedCount = 0;
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
+    function handleFileUpload(event) {
+        const files = event.target.files;
+        let userFiles = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+        let processedCount = 0;
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+
+            if (file.size > 1024 * 1024) {
+                alert(`❌ ไฟล์ "${file.name}" มีขนาดใหญ่เกินไป (จำกัดไม่เกิน 1MB ต่อไฟล์)`);
+                continue;
+            }
+
+            const isImage = file.type.startsWith('image/');
+            const isText = file.type === 'text/plain' || file.name.endsWith('.txt');
+
+            if (!isImage && !isText) {
+                alert(`❌ ไม่อนุญาตให้อัปโหลดไฟล์ประเภทนี้: ${file.name}`);
+                continue;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
                     userFiles.push({
                         name: file.name,
-                        data: e.target.result, // เก็บข้อมูลไฟล์ (รวมถึงรูปภาพ)
-                        isImage: file.type.startsWith('image/')
+                        data: e.target.result,
+                        isImage: isImage
                     });
                     processedCount++;
                     
-                    if (processedCount === files.length) {
-                        localStorage.setItem('pocketcloud_user_files', JSON.stringify(userFiles));
-                        loadUserFiles();
-                        alert('📁 อัปโหลดไฟล์เข้าไดรฟ์จำลองสำเร็จ!');
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(userFiles));
+                    loadUserFiles();
+                } catch (error) {
+                    alert('⚠️ พื้นที่เก็บข้อมูลในเบราว์เซอร์เต็ม (Quota Exceeded)');
+                }
+            };
+            reader.readAsDataURL(file);
         }
+        if(processedCount > 0) {
+            alert('✅ อัปโหลดไฟล์สำเร็จ!');
+        }
+    }
 
-        function loadUserFiles() {
-            const container = document.getElementById('fileGridContainer');
-            let html = `
+    function loadUserFiles() {
+        const container = document.getElementById('fileGridContainer');
+        if (!container) return;
+
+        let userFiles = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+        let html = `
+            <div class="file-item">
+                <div class="file-icon-box">📁</div>
+                <div class="file-name">System_Core</div>
+                <span style="font-size:0.75rem; color:#64748b;">ระบบ</span>
+            </div>
+        `;
+
+        userFiles.forEach((f, index) => {
+            let iconContent = '📄';
+            if (f.isImage && f.data) {
+                iconContent = `<img src="${f.data}" alt="${sanitizeHTML(f.name)}" style="width:100%; height:100%; object-fit:cover;">`;
+            }
+
+            const safeName = sanitizeHTML(f.name);
+            html += `
                 <div class="file-item">
-                    <div class="file-icon-box">📁</div>
-                    <div class="file-name">System_Core</div>
-                    <span style="font-size:0.75rem; color:#64748b;">ระบบ</span>
-                </div>
-                <div class="file-item">
-                    <div class="file-icon-box">📜</div>
-                    <div class="file-name">config.json</div>
-                    <span style="font-size:0.75rem; color:#64748b;">ระบบ</span>
+                    <div class="file-icon-box" ${f.isImage ? `onclick="openImage('${f.data}')"` : `onclick="alert('📄 ไฟล์ข้อความ: ${safeName}')"`}>
+                        ${iconContent}
+                    </div>
+                    <div class="file-name" title="${safeName}">${safeName}</div>
+                    <button class="btn-danger" onclick="deleteUserFile(${index})">🗑️ ลบ</button>
                 </div>
             `;
+        });
 
-            const userFiles = JSON.parse(localStorage.getItem('pocketcloud_user_files') || '[]');
-            userFiles.forEach((f, index) => {
-                let iconContent = '📄';
-                if (f.isImage && f.data) {
-                    iconContent = `<img src="${f.data}" alt="${f.name}">`;
-                }
-
-                html += `
-                    <div class="file-item">
-                        <div class="file-icon-box" ${f.isImage ? `onclick="openImage('${f.data}')"` : `onclick="alert('📄 ไฟล์: ${f.name}')"`} style="cursor: pointer;">
-                            ${iconContent}
-                        </div>
-                        <div class="file-name" title="${f.name}">${f.name}</div>
-                        <button class="btn-danger" onclick="deleteUserFile(${index})">🗑️ ลบ</button>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-            document.getElementById('storageUsed').innerText = `ใช้ไป ${ (12.5 + (userFiles.length * 1.5)).toFixed(1) } MB จาก 1 GB`;
+        container.innerHTML = html;
+        
+        const storageDisplay = document.getElementById('storageUsed');
+        if (storageDisplay) {
+            const totalBytes = new Blob([localStorage.getItem(STORAGE_KEY) || '']).size;
+            const totalKB = (totalBytes / 1024).toFixed(2);
+            storageDisplay.innerText = `ไฟล์ทั้งหมด: ${userFiles.length} ไฟล์ | ใช้พื้นที่ไป: ${totalKB} KB / ~5,000 KB`;
         }
+    }
 
-        function openImage(dataUrl) {
-            document.getElementById('modalImg').src = dataUrl;
-            document.getElementById('imageModal').style.display = 'flex';
+    function openImage(dataUrl) {
+        const modalImg = document.getElementById('modalImg');
+        const imageModal = document.getElementById('imageModal');
+        if (modalImg && imageModal) {
+            modalImg.src = dataUrl;
+            imageModal.style.display = 'flex';
         }
+    }
 
-        function deleteUserFile(index) {
-            let userFiles = JSON.parse(localStorage.getItem('pocketcloud_user_files') || '[]');
-            
-            if (confirm('คุณต้องการลบไฟล์นี้ออกจากไดรฟ์ใช่หรือไม่?')) {
-                userFiles.splice(index, 1);
-                localStorage.setItem('pocketcloud_user_files', JSON.stringify(userFiles));
-                loadUserFiles();
-            }
+    function deleteUserFile(index) {
+        let userFiles = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        if (confirm('คุณต้องการลบไฟล์นี้ใช่หรือไม่?')) {
+            userFiles.splice(index, 1);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(userFiles));
+            loadUserFiles();
         }
-    </script>
-</body>
-</html>
+    }
+</script>
+```[cite: 38, 43]
