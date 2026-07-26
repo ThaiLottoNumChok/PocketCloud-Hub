@@ -59,7 +59,6 @@
         .btn-danger { background-color: #ef4444; }
         .btn-danger:hover { background-color: #dc2626; }
         
-        /* สไตล์ฟอร์มลิงก์สินค้า */
         .form-group {
             margin-bottom: 12px;
             text-align: left;
@@ -79,37 +78,55 @@
             box-sizing: border-box;
             font-size: 14px;
         }
+        
+        /* สไตล์รายการสินค้าที่มีรูปภาพ */
         .link-item {
             background: #fff;
-            padding: 10px 15px;
+            padding: 12px;
             border-radius: 8px;
             border: 1px solid #e2e8f0;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             text-align: left;
         }
+        .link-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+        .product-thumb {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            flex-shrink: 0;
+        }
         .link-item a {
-            color: #ee4d2d; /* สีธีม Shopee */
+            color: #ee4d2d;
             text-decoration: none;
             font-weight: bold;
             word-break: break-all;
-            margin-right: 10px;
+            font-size: 14px;
         }
         .link-item a:hover { text-decoration: underline; }
         .del-link-btn {
             background: #fee2e2;
             color: #ef4444;
             border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 6px 12px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 12px;
+            flex-shrink: 0;
+            margin-left: 10px;
         }
         .del-link-btn:hover { background: #fecaca; }
 
-        /* ส่วนแสดงรูปภาพคลาวด์ */
         #gallery {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
@@ -129,14 +146,14 @@
 
     <div class="container">
         <h1>☁️ Pocket Cloud & 🛍️ Shopee Hub</h1>
-        <p class="subtitle">ระบบคลาวด์เก็บรูปและคลังลิงก์สินค้าช้อปปี้ส่วนตัว</p>
+        <p class="subtitle">บันทึกรูปภาพและลิงก์สินค้าพร้อมรูปพรีวิว</p>
         
-        <!-- ส่วนที่ 1: คลังลิงก์สินค้า Shopee 5 หมวดหมู่ -->
+        <!-- ส่วนเพิ่มลิงก์สินค้า Shopee พร้อมรูป -->
         <div class="section-box">
-            <h2>🛒 บันทึกและจัดการลิงก์ Shopee</h2>
+            <h2>🛒 เพิ่มลิงก์สินค้า Shopee</h2>
             <div class="form-group">
                 <label>ชื่อสินค้า / ป้ายกำกับ:</label>
-                <input type="text" id="linkTitle" placeholder="เช่น กาแฟสำเร็จรูป, น้ำยาล้างจาน">
+                <input type="text" id="linkTitle" placeholder="เช่น ผลไม้ดอง 500 กรัม">
             </div>
             <div class="form-group">
                 <label>เลือกหมวดหมู่:</label>
@@ -152,7 +169,11 @@
                 <label>ลิงก์สินค้า (URL):</label>
                 <input type="url" id="linkUrl" placeholder="https://shope.ee/xxxxxx">
             </div>
-            <button class="btn" style="width: 100%; background-color: #ee4d2d;" onclick="saveShopeeLink()">➕ บันทึก ลิงก์สินค้า</button>
+            <div class="form-group">
+                <label>รูปภาพสินค้า:</label>
+                <input type="file" id="productImageInput" accept="image/*">
+            </div>
+            <button class="btn" style="width: 100%; background-color: #ee4d2d;" onclick="saveShopeeLink()">➕ บันทึกสินค้าพร้อมรูปภาพ</button>
         </div>
 
         <!-- พื้นที่แสดงรายชื่อลิงก์แยกตามหมวดหมู่ -->
@@ -181,37 +202,56 @@
             </div>
         </div>
 
-        <!-- ส่วนที่ 2: คลาวด์รูปภาพเดิม -->
+        <!-- คลาวด์รูปภาพทั่วไป -->
         <div class="section-box">
-            <h2>📁 คลาวด์รูปภาพส่วนตัว</h2>
+            <h2>📁 คลังรูปภาพทั่วไป</h2>
             <input type="file" id="fileInput" accept="image/*" style="display: none;">
-            <button class="btn" onclick="document.getElementById('fileInput').click()">📷 อัปโหลดรูปภาพ</button>
-            <button class="btn btn-danger" onclick="clearCloud()">🗑️ ล้างรูปภาพทั้งหมด</button>
+            <button class="btn" onclick="document.getElementById('fileInput').click()">📷 อัปโหลดรูปทั่วไป</button>
+            <button class="btn btn-danger" onclick="clearCloud()">🗑️ ล้างรูปทั้งหมด</button>
             <div id="gallery"></div>
         </div>
     </div>
 
     <script>
-        // --- ส่วนจัดการลิงก์ Shopee ---
-        const SHOPEE_KEY = 'shopee_links_data';
+        const SHOPEE_KEY = 'shopee_links_with_images';
 
         function saveShopeeLink() {
             const title = document.getElementById('linkTitle').value.trim();
             const category = document.getElementById('linkCategory').value;
             const url = document.getElementById('linkUrl').value.trim();
+            const imageInput = document.getElementById('productImageInput');
 
             if (!title || !url) {
-                alert('กรุณากรอกชื่อสินค้าและลิงก์ให้ครบถ้วนครับ!');
+                alert('กรุณากรอกชื่อสินค้าและลิงก์ด้วยครับ!');
                 return;
             }
 
+            const file = imageInput.files[0];
+            if (file) {
+                if (file.size > 500 * 1024) {
+                    alert('รูปภาพมีขนาดใหญ่เกินไป (จำกัด 500KB)');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    storeLinkData(title, category, url, event.target.result);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // ถ้าไม่ได้เลือกรูป ให้ใช้รูป placeholder หรือเว้นว่างไว้
+                storeLinkData(title, category, url, '');
+            }
+        }
+
+        function storeLinkData(title, category, url, imgSrc) {
             const links = JSON.parse(localStorage.getItem(SHOPEE_KEY) || '[]');
-            links.push({ id: Date.now(), title, category, url });
+            links.push({ id: Date.now(), title, category, url, imgSrc });
             localStorage.setItem(SHOPEE_KEY, JSON.stringify(links));
 
-            // ล้างช่องกรอก
+            // เคลียร์ฟอร์ม
             document.getElementById('linkTitle').value = '';
             document.getElementById('linkUrl').value = '';
+            document.getElementById('productImageInput').value = '';
             loadShopeeLinks();
         }
 
@@ -227,8 +267,16 @@
                 if (container) {
                     const div = document.createElement('div');
                     div.className = 'link-item';
+                    
+                    let imgTag = item.imgSrc ? `<img src="${item.imgSrc}" class="product-thumb">` : `<div class="product-thumb" style="display:flex;align-items:center;justify-content:center;background:#e2e8f0;font-size:10px;">📦 ไม่มีรูป</div>`;
+                    
                     div.innerHTML = `
-                        <a href="${item.url}" target="_blank">🛍️ ${item.title}</a>
+                        <div class="link-info">
+                            ${imgTag}
+                            <div>
+                                <a href="${item.url}" target="_blank">🛍️ ${item.title}</a>
+                            </div>
+                        </div>
                         <button class="del-link-btn" onclick="deleteLink(${item.id})">ลบ</button>
                     `;
                     container.appendChild(div);
@@ -243,7 +291,7 @@
             loadShopeeLinks();
         }
 
-        // --- ส่วนจัดการคลาวด์รูปภาพ ---
+        // คลังรูปภาพทั่วไป
         const fileInput = document.getElementById('fileInput');
         const gallery = document.getElementById('gallery');
         const IMAGE_KEY = 'my_cloud_images';
@@ -262,22 +310,16 @@
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
-
             if (file.size > 500 * 1024) {
                 alert('ไฟล์รูปใหญ่เกินไป (จำกัด 500KB)');
                 return;
             }
-
             const reader = new FileReader();
             reader.onload = function(event) {
                 const images = JSON.parse(localStorage.getItem(IMAGE_KEY) || '[]');
                 images.push(event.target.result);
-                try {
-                    localStorage.setItem(IMAGE_KEY, JSON.stringify(images));
-                    loadImages();
-                } catch (error) {
-                    alert('พื้นที่จัดเก็บเต็มแล้ว!');
-                }
+                localStorage.setItem(IMAGE_KEY, JSON.stringify(images));
+                loadImages();
             };
             reader.readAsDataURL(file);
         });
@@ -289,7 +331,6 @@
             }
         }
 
-        // โหลดข้อมูลทั้งหมดเมื่อเปิดหน้าเว็บ
         loadShopeeLinks();
         loadImages();
     </script>
