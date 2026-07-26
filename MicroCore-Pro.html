@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Web Computer OS</title>
+    <style>
+        body { background: #0f172a; color: #38bdf8; font-family: monospace; padding: 15px; margin: 0; }
+        .container { max-width: 600px; margin: auto; background: #1e293b; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        h2 { text-align: center; color: #f43f5e; margin-top: 0; }
+        .monitor { background: #000; padding: 15px; border-radius: 8px; min-height: 120px; border: 2px solid #334155; margin-bottom: 15px; font-size: 14px; overflow-y: auto; max-height: 200px; }
+        .stats { display: flex; justify-content: space-between; margin-bottom: 15px; background: #334155; padding: 10px; border-radius: 6px; font-size: 13px; }
+        button { width: 100%; background: #10b981; color: white; border: none; padding: 12px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        button:active { background: #059669; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>💻 WEB PC SYSTEM v1.0</h2>
+    
+    <div class="stats">
+        <div>HDD: <span id="hdd-space">100 GB</span></div>
+        <div>CPU Power: <span id="cpu-speed">Calculating...</span></div>
+    </div>
+
+    <div class="monitor" id="screen">
+        [System Ready] กรุณากดปุ่มเพื่อเริ่มจำลองการทำงานระบบ...
+    </div>
+
+    <button onclick="bootSystem()">🚀 บูตระบบ / ติดตั้ง Windows</button>
+    <button onclick="runBenchmark()" style="background: #3b82f6; margin-top: 10px;">⚡ ทดสอบพลังชิป & เน็ต</button>
+</div>
+
+<script>
+    // จำลองระบบ HDD และ CPU สัมพันธ์กัน
+    let hddFree = 100; // GB
+
+    function logToScreen(text) {
+        const screen = document.getElementById('screen');
+        screen.innerHTML += "<br>> " + text;
+        screen.scrollTop = screen.scrollHeight;
+    }
+
+    function runBenchmark() {
+        // แก้ไขจุดบกพร่อง: เคลียร์หน้าจอให้ถูกต้อง
+        document.getElementById('screen').innerHTML = "[Benchmark Started]";
+        logToScreen("กำลังตรวจวัดความเร็วอินเทอร์เน็ต & พลังชิป...");
+        
+        // เช็คความเร็วเน็ตอย่างปลอดภัย
+        let speed = 10; // ค่าเริ่มต้นสำรอง
+        if (navigator.connection && navigator.connection.downlink) {
+            speed = navigator.connection.downlink;
+        }
+        
+        let simulatedGHz = (speed * 0.5).toFixed(2);
+        
+        document.getElementById('cpu-speed').innerText = simulatedGHz + " GHz";
+        logToScreen("ความเร็วเน็ตขับเคลื่อน: " + speed + " Mbps");
+        logToScreen("พลังประมวลผลชิปจำลอง: " + simulatedGHz + " GHz ผ่านฉลุย!");
+    }
+
+    function bootSystem() {
+        const screen = document.getElementById('screen');
+        screen.innerHTML = "[Booting Virtual Machine...]";
+        
+        setTimeout(() => {
+            logToScreen("กำลังอ่านข้อมูลเชื่อมโยงกับ hdd.html...");
+        }, 600);
+
+        setTimeout(() => {
+            if(hddFree > 10) {
+                hddFree -= 15;
+                document.getElementById('hdd-space').innerText = hddFree + " GB (ใช้งานอยู่)";
+                logToScreen("ติดตั้งระบบสำเร็จ! พื้นที่ HDD เหลือ: " + hddFree + " GB");
+                logToScreen("ยินดีต้อนรับสู่ระบบปฏิบัติการบนมือถือ 555");
+            } else {
+                logToScreen("❌ พื้นที่ HDD ไม่พอ!");
+            }
+        }, 1500);
+    }
+</script>
+
+</body>
+</html>
