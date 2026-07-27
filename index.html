@@ -110,7 +110,7 @@
             border: 1px solid #cbd5e1;
         }
 
-        /* สไตล์รายการสินค้า (ปรับปรุงใหม่ให้ชื่อเต็มไม่ถูกบีบ) */
+        /* สไตล์รายการสินค้า */
         .link-item {
             background: #fff;
             padding: 12px;
@@ -200,7 +200,33 @@
         <h1>🛍️ Shopee Hub & Recommended</h1>
         <p class="subtitle">รวมสินค้าแนะนำและลิงก์โปรโมชั่นพิเศษ</p>
         
-        <!-- ส่วนเพิ่มลิงก์ (เฉพาะแอดมิน) -->
+        <!-- พื้นที่แสดงรายชื่อลิงก์แยกตามหมวดหมู่ -->
+        <div class="section-box" style="text-align: left;">
+            <h2>📂 หมวดหมู่สินค้าทั้งหมด</h2>
+            
+            <div style="margin-bottom: 15px;">
+                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">🍲 อาหารและเครื่องดื่ม</h3>
+                <div id="list-food"></div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">🏠 เครื่องใช้ในบ้าน</h3>
+                <div id="list-home"></div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">✨ ความงามและของใช้ส่วนตัว</h3>
+                <div id="list-beauty"></div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">📚 เครื่องเขียน หนังสือและงานอดิเรก</h3>
+                <div id="list-hobby"></div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">💊 กลุ่มผลิตภัณฑ์เพื่อสุขภาพ</h3>
+                <div id="list-health"></div>
+            </div>
+        </div>
+
+        <!-- ส่วนเพิ่มลิงก์ (ย้ายมาไว้ด้านล่างสุดเพื่อให้กดใช้งานสะดวก ไม่ติดขอบจอ) -->
         <div class="section-box" id="admin-section">
             <h2>🛒 เพิ่มลิงก์สินค้า Shopee (แอดมิน)</h2>
             <div class="form-group">
@@ -233,32 +259,6 @@
                 </div>
             </div>
             <button class="btn" onclick="addNewProduct()">➕ เพิ่มสินค้าเข้าหน้าเว็บ</button>
-        </div>
-
-        <!-- พื้นที่แสดงรายชื่อลิงก์แยกตามหมวดหมู่ -->
-        <div class="section-box" style="text-align: left;">
-            <h2>📂 หมวดหมู่สินค้าทั้งหมด</h2>
-            
-            <div style="margin-bottom: 15px;">
-                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">🍲 อาหารและเครื่องดื่ม</h3>
-                <div id="list-food"></div>
-            </div>
-            <div style="margin-bottom: 15px;">
-                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">🏠 เครื่องใช้ในบ้าน</h3>
-                <div id="list-home"></div>
-            </div>
-            <div style="margin-bottom: 15px;">
-                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">✨ ความงามและของใช้ส่วนตัว</h3>
-                <div id="list-beauty"></div>
-            </div>
-            <div style="margin-bottom: 15px;">
-                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">📚 เครื่องเขียน หนังสือและงานอดิเรก</h3>
-                <div id="list-hobby"></div>
-            </div>
-            <div style="margin-bottom: 15px;">
-                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">💊 กลุ่มผลิตภัณฑ์เพื่อสุขภาพ</h3>
-                <div id="list-health"></div>
-            </div>
         </div>
     </div>
 
