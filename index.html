@@ -110,6 +110,40 @@
             border: 1px solid #cbd5e1;
         }
 
+        /* สไตล์หมวดหมู่แบบพับเก็บได้ */
+        .category-container {
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #fff;
+            overflow: hidden;
+        }
+        .category-header {
+            background: #f1f5f9;
+            padding: 12px 15px;
+            font-size: 15px;
+            font-weight: bold;
+            color: #0284c7;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .category-header:hover {
+            background: #e2e8f0;
+        }
+        .category-content {
+            padding: 15px;
+            display: none; /* ซ่อนไว้ก่อนเริ่มต้น */
+            max-height: 450px; /* จำกัดความสูงให้เลื่อนดูสินค้าด้านในได้กรณีมีเป็นร้อยรายการ */
+            overflow-y: auto;
+        }
+        .category-content.active {
+            display: block;
+        }
+
         /* สไตล์รายการสินค้า */
         .link-item {
             background: #fff;
@@ -200,29 +234,63 @@
         <h1>🛍️ Shopee Hub & Recommended</h1>
         <p class="subtitle">รวมสินค้าแนะนำและลิงก์โปรโมชั่นพิเศษ</p>
         
-        <!-- พื้นที่แสดงรายชื่อลิงก์แยกตามหมวดหมู่ -->
+        <!-- พื้นที่แสดงรายชื่อลิงก์แยกตามหมวดหมู่แบบพับเก็บได้ -->
         <div class="section-box" style="text-align: left;">
-            <h2>📂 หมวดหมู่สินค้าทั้งหมด</h2>
+            <h2>📂 หมวดหมู่สินค้าทั้งหมด (แตะเพื่อเปิด-ปิดดูรายการ)</h2>
             
-            <div style="margin-bottom: 15px;">
-                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">🍲 อาหารและเครื่องดื่ม</h3>
-                <div id="list-food"></div>
+            <!-- อาหารและเครื่องดื่ม -->
+            <div class="category-container">
+                <div class="category-header" onclick="toggleCategory('food')">
+                    <span>🍲 อาหารและเครื่องดื่ม</span>
+                    <span id="icon-food">▼</span>
+                </div>
+                <div class="category-content" id="content-food">
+                    <div id="list-food"></div>
+                </div>
             </div>
-            <div style="margin-bottom: 15px;">
-                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">🏠 เครื่องใช้ในบ้าน</h3>
-                <div id="list-home"></div>
+
+            <!-- เครื่องใช้ในบ้าน -->
+            <div class="category-container">
+                <div class="category-header" onclick="toggleCategory('home')">
+                    <span>🏠 เครื่องใช้ในบ้าน</span>
+                    <span id="icon-home">▼</span>
+                </div>
+                <div class="category-content" id="content-home">
+                    <div id="list-home"></div>
+                </div>
             </div>
-            <div style="margin-bottom: 15px;">
-                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">✨ ความงามและของใช้ส่วนตัว</h3>
-                <div id="list-beauty"></div>
+
+            <!-- ความงามและของใช้ส่วนตัว -->
+            <div class="category-container">
+                <div class="category-header" onclick="toggleCategory('beauty')">
+                    <span>✨ ความงามและของใช้ส่วนตัว</span>
+                    <span id="icon-beauty">▼</span>
+                </div>
+                <div class="category-content" id="content-beauty">
+                    <div id="list-beauty"></div>
+                </div>
             </div>
-            <div style="margin-bottom: 15px;">
-                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">📚 เครื่องเขียน หนังสือและงานอดิเรก</h3>
-                <div id="list-hobby"></div>
+
+            <!-- เครื่องเขียน หนังสือและงานอดิเรก -->
+            <div class="category-container">
+                <div class="category-header" onclick="toggleCategory('hobby')">
+                    <span>📚 เครื่องเขียน หนังสือและงานอดิเรก</span>
+                    <span id="icon-hobby">▼</span>
+                </div>
+                <div class="category-content" id="content-hobby">
+                    <div id="list-hobby"></div>
+                </div>
             </div>
-            <div style="margin-bottom: 15px;">
-                <h3 style="color: #0284c7; font-size: 15px; margin-bottom: 5px;">💊 กลุ่มผลิตภัณฑ์เพื่อสุขภาพ</h3>
-                <div id="list-health"></div>
+
+            <!-- กลุ่มผลิตภัณฑ์เพื่อสุขภาพ -->
+            <div class="category-container">
+                <div class="category-header" onclick="toggleCategory('health')">
+                    <span>💊 กลุ่มผลิตภัณฑ์เพื่อสุขภาพ</span>
+                    <span id="icon-health">▼</span>
+                </div>
+                <div class="category-content" id="content-health">
+                    <div id="list-health"></div>
+                </div>
             </div>
         </div>
 
@@ -275,6 +343,20 @@
 
         let isAdmin = false;
         let uploadedImageBase64 = "";
+
+        // ฟังก์ชันเปิด-ปิดพับหมวดหมู่
+        function toggleCategory(catName) {
+            const content = document.getElementById(`content-${catName}`);
+            const icon = document.getElementById(`icon-${catName}`);
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                icon.textContent = '▼';
+            } else {
+                content.classList.add('active');
+                icon.textContent = '▲';
+            }
+        }
 
         function previewImage(event) {
             const file = event.target.files[0];
@@ -344,20 +426,18 @@
                 return;
             }
 
-            // ตรวจสอบว่ามีชื่อสินค้าหรือลิงก์ซ้ำกันในระบบหรือไม่
             const isDuplicate = publicProducts.some(item => item.url === url || item.title === title);
             
             if (isDuplicate) {
                 const confirmAdd = confirm('⚠️ แจ้งเตือน: พบว่ามีสินค้านี้หรือลิงก์นี้อยู่ในระบบแล้ว! คุณต้องการเพิ่มซ้ำอีกรอบใช่หรือไม่?');
                 if (!confirmAdd) {
-                    return; // ยกเลิกการเพิ่มถ้ารอบนึงแล้วไม่อยากลงซ้ำ
+                    return;
                 }
             }
 
             publicProducts.push({ id: Date.now(), title, category, url, imgSrc });
             localStorage.setItem('public_shopee_products', JSON.stringify(publicProducts));
             
-            // ล้างค่าในฟอร์มหลังเพิ่มสำเร็จ
             document.getElementById('linkTitle').value = '';
             document.getElementById('linkUrl').value = '';
             document.getElementById('imageInput').value = '';
@@ -365,6 +445,11 @@
             document.getElementById('imagePreviewContainer').style.display = 'none';
             
             renderProducts();
+            
+            // เปิดหมวดหมู่ที่เพิ่งเพิ่มสินค้าอัตโนมัติ เพื่อให้แอดมินเห็นทันที
+            document.getElementById(`content-${category}`).classList.add('active');
+            document.getElementById(`icon-${category}`).textContent = '▲';
+
             alert('✅ ลงสินค้าสำเร็จเรียบร้อยแล้ว!');
         }
 
