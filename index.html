@@ -371,6 +371,13 @@
                 return;
             }
 
+            // ระบบเช็ค URL ซ้ำ
+            const isDuplicate = publicProducts.some(item => item.url === url);
+            if (isDuplicate) {
+                alert('⚠️ แจ้งเตือน: ลิงก์สินค้า (URL) นี้มีอยู่ในระบบแล้วครับ!');
+                return;
+            }
+
             publicProducts.unshift({ id: Date.now(), title, category, url, imgSrc });
             
             await saveProductsToCloud();
