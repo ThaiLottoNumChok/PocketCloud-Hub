@@ -331,15 +331,8 @@
     </div>
 
     <script>
-        let publicProducts = JSON.parse(localStorage.getItem('public_shopee_products') || JSON.stringify([
-            {
-                id: 1,
-                title: "ผลไม้ดอง ขนาด 500 กรัม แถมฟรีพริกเกลือ",
-                category: "food",
-                url: "https://shopee.co.th",
-                imgSrc: ""
-            }
-        ]));
+        // ตั้งค่าเริ่มต้นให้เป็นค่าว่าง (ไม่มีสินค้าตัวอย่างติดมา)
+        let publicProducts = JSON.parse(localStorage.getItem('public_shopee_products') || '[]');
 
         let isAdmin = false;
         let uploadedImageBase64 = "";
