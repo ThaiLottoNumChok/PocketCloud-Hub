@@ -243,7 +243,7 @@
                     <span id="arrow-food" class="arrow-icon">▲</span>
                 </div>
                 <div id="content-food" class="category-content">
-                    <div id="list-food">กำลังโหลดข้อมูล...</div>
+                    <div id="list-food">กำลังโหลดข้อมูลจากคลาวด์...</div>
                 </div>
             </div>
 
@@ -253,7 +253,7 @@
                     <span id="arrow-home" class="arrow-icon">▲</span>
                 </div>
                 <div id="content-home" class="category-content">
-                    <div id="list-home">กำลังโหลดข้อมูล...</div>
+                    <div id="list-home">กำลังโหลดข้อมูลจากคลาวด์...</div>
                 </div>
             </div>
 
@@ -263,7 +263,7 @@
                     <span id="arrow-beauty" class="arrow-icon">▲</span>
                 </div>
                 <div id="content-beauty" class="category-content">
-                    <div id="list-beauty">กำลังโหลดข้อมูล...</div>
+                    <div id="list-beauty">กำลังโหลดข้อมูลจากคลาวด์...</div>
                 </div>
             </div>
 
@@ -273,7 +273,7 @@
                     <span id="arrow-hobby" class="arrow-icon">▲</span>
                 </div>
                 <div id="content-hobby" class="category-content">
-                    <div id="list-hobby">กำลังโหลดข้อมูล...</div>
+                    <div id="list-hobby">กำลังโหลดข้อมูลจากคลาวด์...</div>
                 </div>
             </div>
 
@@ -283,7 +283,7 @@
                     <span id="arrow-health" class="arrow-icon">▲</span>
                 </div>
                 <div id="content-health" class="category-content">
-                    <div id="list-health">กำลังโหลดข้อมูล...</div>
+                    <div id="list-health">กำลังโหลดข้อมูลจากคลาวด์...</div>
                 </div>
             </div>
         </div>
@@ -338,12 +338,11 @@
                 });
                 const data = await response.json();
                 
-                // ตรวจสอบว่ามีข้อมูล items หรือไม่ ถ้าไม่มีให้เซ็ตค่าเริ่มต้นเป็นอาเรย์ว่าง
-                if (data.record && data.record.items) {
+                // ดึงข้อมูลรายการสินค้าจาก Cloud มาเก็บไว้
+                if (data.record && Array.isArray(data.record.items)) {
                     publicProducts = data.record.items;
-                } else {
-                    publicProducts = [];
-                    await saveProductsToCloud(); // บันทึกโครงสร้างเริ่มต้นกันเหนียว
+                } else if (Array.isArray(data.record)) {
+                    publicProducts = data.record;
                 }
                 renderProducts();
             } catch (error) {
@@ -408,7 +407,9 @@
             publicProducts.forEach(item => {
                 const container = document.getElementById(`list-${item.category}`);
                 if (container) {
-                    if (container.innerHTML.includes('ยังไม่มีสินค้า')) container.innerHTML = '';
+                    if (container.innerHTML.includes('ยังไม่มีสินค้า') || container.innerHTML.includes('กำลังโหลดข้อมูล')) {
+                        container.innerHTML = '';
+                    }
                     
                     const div = document.createElement('div');
                     div.className = 'link-item';
@@ -427,6 +428,14 @@
                         </div>
                     `;
                     container.appendChild(div);
+                }
+            });
+
+            // ตรวจสอบหมวดไหนที่ไม่มีสินค้า ให้แสดงข้อความแจ้งเตือน
+            categories.forEach(cat => {
+                const container = document.getElementById(`list-${cat}`);
+                if (container.innerHTML.trim() === '') {
+                    container.innerHTML = '<div style="font-size: 13px; color: #94a3b8;">ยังไม่มีสินค้าในหมวดหมู่นี้</div>';
                 }
             });
         }
@@ -483,6 +492,7 @@
             }
         }
 
+        // เริ่มต้นทำงานดึงข้อมูลทันทีที่เปิดหน้าเว็บ
         fetchProducts();
     </script>
 </body>
