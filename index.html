@@ -226,7 +226,7 @@
             </div>
         </div>
 
-        <!-- ส่วนเพิ่มลิงก์ (ย้ายมาไว้ด้านล่างสุดเพื่อให้กดใช้งานสะดวก ไม่ติดขอบจอ) -->
+        <!-- ส่วนเพิ่มลิงก์ -->
         <div class="section-box" id="admin-section">
             <h2>🛒 เพิ่มลิงก์สินค้า Shopee (แอดมิน)</h2>
             <div class="form-group">
@@ -340,13 +340,24 @@
             const imgSrc = uploadedImageBase64;
 
             if (!title || !url) {
-                alert('กรุณากรอกชื่อสินค้าและลิงก์ด้วยครับ!');
+                alert('⚠️ กรุณากรอกชื่อสินค้าและลิงก์ด้วยครับ!');
                 return;
+            }
+
+            // ตรวจสอบว่ามีชื่อสินค้าหรือลิงก์ซ้ำกันในระบบหรือไม่
+            const isDuplicate = publicProducts.some(item => item.url === url || item.title === title);
+            
+            if (isDuplicate) {
+                const confirmAdd = confirm('⚠️ แจ้งเตือน: พบว่ามีสินค้านี้หรือลิงก์นี้อยู่ในระบบแล้ว! คุณต้องการเพิ่มซ้ำอีกรอบใช่หรือไม่?');
+                if (!confirmAdd) {
+                    return; // ยกเลิกการเพิ่มถ้ารอบนึงแล้วไม่อยากลงซ้ำ
+                }
             }
 
             publicProducts.push({ id: Date.now(), title, category, url, imgSrc });
             localStorage.setItem('public_shopee_products', JSON.stringify(publicProducts));
             
+            // ล้างค่าในฟอร์มหลังเพิ่มสำเร็จ
             document.getElementById('linkTitle').value = '';
             document.getElementById('linkUrl').value = '';
             document.getElementById('imageInput').value = '';
@@ -354,7 +365,7 @@
             document.getElementById('imagePreviewContainer').style.display = 'none';
             
             renderProducts();
-            alert('เพิ่มสินค้าสำเร็จ!');
+            alert('✅ ลงสินค้าสำเร็จเรียบร้อยแล้ว!');
         }
 
         function deleteProduct(id) {
