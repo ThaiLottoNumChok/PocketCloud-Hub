@@ -383,7 +383,7 @@
 
         function handleImageError(img) {
             img.onerror = null; 
-            img.src = 'https://via.placeholder.com/65x65/fee2e2/ef4444.png?text=Error'; 
+            img.src = 'https://placehold.co/65x65/fee2e2/ef4444?text=Error';
             img.style.border = '2px solid #ef4444';
             
             const titleDiv = img.closest('.product-main-link').querySelector('.product-title');
@@ -403,7 +403,7 @@
 
             let checkPromises = Array.from(images).map(img => {
                 return new Promise((resolve) => {
-                    if (img.src.includes('via.placeholder.com')) {
+                    if (img.src.includes('placehold.co')) {
                         resolve(true); 
                         return;
                     }
@@ -455,7 +455,7 @@
                     
                     let deleteBtnTag = isAdmin ? `<button class="del-btn" onclick="deleteProduct(${item.id})">🗑️ ลบ</button>` : '';
 
-                    let imgSrc = item.image && item.image.trim() !== '' ? item.image : 'https://via.placeholder.com/65x65/fee2e2/ee4d2d.png?text=Shopee';
+                    let imgSrc = item.image && item.image.trim() !== '' ? item.image : 'https://placehold.co/65x65/fee2e2/ee4d2d?text=Shopee';
 
                     div.innerHTML = `
                         <a href="${item.url}" target="_blank" class="product-main-link">
