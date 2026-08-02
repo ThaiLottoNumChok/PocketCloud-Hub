@@ -285,20 +285,27 @@
                 <label>ลิงก์สินค้า (URL):</label>
                 <input type="url" id="linkUrl" placeholder="https://shope.ee/xxxxxx">
             </div>
+            
+            <div class="form-group">
+                <label>ลิงก์รูปภาพ (Image URL - ไม่บังคับ):</label>
+                <input type="url" id="linkImage" placeholder="https://... (วางลิงก์รูปภาพถ้ามี)">
+            </div>
+
             <button class="btn" onclick="addNewProduct()">➕ เพิ่มสินค้าเข้าหน้าเว็บ</button>
+
+            <button class="btn" style="background-color: #f59e0b; margin-top: 15px;" onclick="scanBadImages()" id="scanImgBtn">⚡ สแกนรูปภาพสินค้าที่หมดอายุ/เสีย</button>
         </div>
     </div>
 
     <script>
-        // ตั้งค่า GitHub Repository ของคุณ (ไม่มีการฝัง Token ถาวร ปลอดภัย 100%)
-        const REPO_OWNER = "ThaiLottoNumChok"; 
-        const REPO_NAME = "PocketCloud-Hub";    
-        const FILE_PATH = "products.json";      
+        const REPO_OWNER = "ThaiLottoNumChok";
+        const REPO_NAME = "PocketCloud-Hub";
+        const FILE_PATH = "products.json";
 
         let publicProducts = [];
-        let fileSha = ""; 
+        let fileSha = "";
         let isAdmin = false;
-        let dynamicToken = ""; // Token ชั่วคราวเฉพาะตอนใช้งาน
+        let dynamicToken = "";
 
         async function fetchProducts() {
             try {
@@ -341,7 +348,7 @@
                         'Accept': 'application/vnd.github.v3+json'
                     },
                     body: JSON.stringify({
-                        message: "Update products.json via web admin",
+                        message: "Update products.json (Added Image Support & Health Check)",
                         content: base64Content,
                         sha: fileSha
                     })
@@ -374,6 +381,55 @@
             }
         }
 
+        function handleImageError(img) {
+            img.onerror = null; 
+            img.src = 'https://via.placeholder.com/65x65/fee2e2/ef4444.png?text=Error'; 
+            img.style.border = '2px solid #ef4444';
+            
+            const titleDiv = img.closest('.product-main-link').querySelector('.product-title');
+            if (titleDiv && !titleDiv.innerHTML.includes('⚠️')) {
+                titleDiv.innerHTML += '<br><span style="color: #ef4444; font-size: 12px; font-weight: normal;">(⚠️ ลิงก์รูปภาพหมดอายุ/เสีย)</span>';
+            }
+        }
+
+        function scanBadImages() {
+            const images = document.querySelectorAll('img.product-thumb');
+            let badCount = 0;
+            const btn = document.getElementById('scanImgBtn');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '⏳ กำลังสแกน...';
+            btn.disabled = true;
+
+            let checkPromises = Array.from(images).map(img => {
+                return new Promise((resolve) => {
+                    if (img.src.includes('via.placeholder.com')) {
+                        resolve(true); 
+                        return;
+                    }
+                    const tempImg = new Image();
+                    tempImg.onload = () => resolve(true);
+                    tempImg.onerror = () => {
+                        handleImageError(img);
+                        resolve(false);
+                    };
+                    tempImg.src = img.src;
+                });
+            });
+
+            Promise.all(checkPromises).then(results => {
+                badCount = results.filter(res => res === false).length;
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                if (badCount > 0) {
+                    alert(`⚠️ สแกนเสร็จสิ้น! พบรูปลิงก์เสีย ${badCount} รายการ (ระบบปรับเป็นรูปสำรองพร้อมติดป้ายเตือนแล้ว)`);
+                } else {
+                    alert('✅ สแกนเสร็จสิ้น! ลิงก์รูปภาพทั้งหมดแสดงผลได้ปกติครับ');
+                }
+            });
+        }
+
         function renderProducts() {
             const categories = ['food', 'home', 'beauty', 'hobby', 'health'];
             categories.forEach(cat => {
@@ -399,9 +455,11 @@
                     
                     let deleteBtnTag = isAdmin ? `<button class="del-btn" onclick="deleteProduct(${item.id})">🗑️ ลบ</button>` : '';
 
+                    let imgSrc = item.image && item.image.trim() !== '' ? item.image : 'https://via.placeholder.com/65x65/fee2e2/ee4d2d.png?text=Shopee';
+
                     div.innerHTML = `
                         <a href="${item.url}" target="_blank" class="product-main-link">
-                            <div class="product-thumb">Shopee</div>
+                            <img src="${imgSrc}" class="product-thumb" alt="Product" onerror="handleImageError(this)">
                             <div class="product-title">${item.title}</div>
                         </a>
                         <div class="product-footer">
@@ -451,6 +509,7 @@
             const title = document.getElementById('linkTitle').value.trim();
             const category = document.getElementById('linkCategory').value;
             const url = document.getElementById('linkUrl').value.trim();
+            const image = document.getElementById('linkImage') ? document.getElementById('linkImage').value.trim() : "";
 
             if (!title || !url) {
                 alert('⚠️ กรุณากรอกชื่อสินค้าและลิงก์ด้วยครับ!');
@@ -463,34 +522,32 @@
                 return;
             }
 
-            publicProducts.unshift({ id: Date.now(), title, category, url });
+            publicProducts.unshift({ id: Date.now(), title, category, url, image });
             
             const success = await saveProductsToGitHub();
             if (success) {
                 document.getElementById('linkTitle').value = '';
                 document.getElementById('linkUrl').value = '';
+                if (document.getElementById('linkImage')) {
+         document.getElementById('linkImage').value = '';
+                }
                 renderProducts();
-                alert('✅ บันทึกสินค้าลง GitHub สำเร็จ!');
-            } else {
-                publicProducts.shift(); 
+                alert('✅ เพิ่มสินค้าเข้าหน้าเว็บและบันทึกลง GitHub สำเร็จ!');
             }
         }
 
         async function deleteProduct(id) {
-            if (confirm('คุณต้องการลบสินค้านี้ใช่หรือไม่?')) {
-                const previousProducts = [...publicProducts];
-                publicProducts = publicProducts.filter(item => item.id !== id);
-                
-                const success = await saveProductsToGitHub();
-                if (success) {
-                    renderProducts();
-                    alert('✅ ลบสินค้าเรียบร้อย!');
-                } else {
-                    publicProducts = previousProducts; 
-                }
+            if (!confirm("🗑️ คุณต้องการลบสินค้านี้ใช่หรือไม่?")) return;
+
+            publicProducts = publicProducts.filter(item => item.id !== id);
+            const success = await saveProductsToGitHub();
+            if (success) {
+                renderProducts();
+                alert('🗑️ ลบสินค้าและอัปเดต GitHub สำเร็จ!');
             }
         }
 
+        // โหลดข้อมูลสินค้าทันทีเมื่อเปิดหน้าเว็บ
         fetchProducts();
     </script>
 </body>
